@@ -18,6 +18,7 @@ package storage
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 
@@ -90,7 +91,7 @@ func SetupBucket(mgr ctrl.Manager, l logging.Logger) error {
 // Reconcile reads that state of the cluster for a Provider bucket and makes changes based on the state read
 // and what is in the Provider.Spec
 func (r *Reconciler) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	r.log.Debug("Reconciling", "kind", "request", request)
+	logrus.Infof("Reconciling %v", request)
 
 	ctx, cancel := context.WithTimeout(context.Background(), reconcileTimeout)
 	defer cancel()
