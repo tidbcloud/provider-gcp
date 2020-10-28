@@ -18,12 +18,12 @@ package storage
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	corev1 "k8s.io/api/core/v1"
