@@ -274,7 +274,9 @@ func (bh *bucketCreateUpdater) create(ctx context.Context) (reconcile.Result, er
 func (bh *bucketCreateUpdater) update(ctx context.Context, attrs *storage.BucketAttrs) (reconcile.Result, error) {
 	current := v1alpha3.NewBucketUpdatableAttrs(attrs)
 	if reflect.DeepEqual(*current, bh.getSpecAttrs()) {
-		return requeueOnSuccess, nil
+		bh.setStatusAttrs(attrs)
+		bh.setStatusConditions(runtimev1alpha1.Available(), runtimev1alpha1.ReconcileSuccess())
+		return requeueOnSuccess, bh.updateStatus(ctx)
 	}
 
 	attrs, err := bh.updateBucket(ctx, attrs.Labels)
