@@ -157,6 +157,7 @@ func (e *managedZoneExternal) Create(ctx context.Context, mg resource.Managed) (
 }
 
 func (e *managedZoneExternal) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
+	cr.SetConditions(runtimev1alpha1.Available())
 	return managed.ExternalUpdate{}, nil
 }
 
