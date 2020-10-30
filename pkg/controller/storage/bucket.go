@@ -272,25 +272,29 @@ func (bh *bucketCreateUpdater) create(ctx context.Context) (reconcile.Result, er
 
 // update bucket resource if needed
 func (bh *bucketCreateUpdater) update(ctx context.Context, attrs *storage.BucketAttrs) (reconcile.Result, error) {
-	current := v1alpha3.NewBucketUpdatableAttrs(attrs)
-	if reflect.DeepEqual(*current, bh.getSpecAttrs()) {
-		bh.setStatusAttrs(attrs)
-		bh.setStatusConditions(runtimev1alpha1.Available(), runtimev1alpha1.ReconcileSuccess())
-		return requeueOnSuccess, bh.updateStatus(ctx)
-	}
+	//current := v1alpha3.NewBucketUpdatableAttrs(attrs)
+	//if reflect.DeepEqual(*current, bh.getSpecAttrs()) {
+	//	bh.setStatusAttrs(attrs)
+	//	bh.setStatusConditions(runtimev1alpha1.Available(), runtimev1alpha1.ReconcileSuccess())
+	//	return requeueOnSuccess, bh.updateStatus(ctx)
+	//}
+	//
+	//attrs, err := bh.updateBucket(ctx, attrs.Labels)
+	//if err != nil {
+	//	bh.setStatusConditions(runtimev1alpha1.ReconcileError(err))
+	//	return resultRequeue, bh.updateStatus(ctx)
+	//}
+	//
+	//// Sync attributes back to spec
+	//bh.setSpecAttrs(attrs)
+	//if err := bh.updateObject(ctx); err != nil {
+	//	return resultRequeue, err
+	//}
+	//
+	//bh.setStatusConditions(runtimev1alpha1.ReconcileSuccess())
+	//return requeueOnSuccess, bh.updateStatus(ctx)
 
-	attrs, err := bh.updateBucket(ctx, attrs.Labels)
-	if err != nil {
-		bh.setStatusConditions(runtimev1alpha1.ReconcileError(err))
-		return resultRequeue, bh.updateStatus(ctx)
-	}
-
-	// Sync attributes back to spec
-	bh.setSpecAttrs(attrs)
-	if err := bh.updateObject(ctx); err != nil {
-		return resultRequeue, err
-	}
-
-	bh.setStatusConditions(runtimev1alpha1.ReconcileSuccess())
+	bh.setStatusAttrs(attrs)
+	bh.setStatusConditions(runtimev1alpha1.Available(), runtimev1alpha1.ReconcileSuccess())
 	return requeueOnSuccess, bh.updateStatus(ctx)
 }
