@@ -34,7 +34,7 @@ type ProviderConfigSpec struct {
 // ProviderCredentials required to authenticate.
 type ProviderCredentials struct {
 	// Source of the provider credentials.
-	// +kubebuilder:validation:Enum=None;Secret;Environment;Filesystem
+	// +kubebuilder:validation:Enum=None;Secret;Environment;Filesystem;WorkloadIdentity
 	Source xpv1.CredentialsSource `json:"source"`
 
 	// +optional

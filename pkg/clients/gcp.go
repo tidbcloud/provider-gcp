@@ -59,7 +59,7 @@ func GetAuthInfo(ctx context.Context, c client.Client, mg resource.Managed) (pro
 	}
 }
 
-const WorkloadIdentitySource  xpv1.CredentialsSource = "WorkloadIdentitySource"
+const WorkloadIdentitySource  xpv1.CredentialsSource = "WorkloadIdentity"
 
 type oidcTokenSource struct {
 	// workload identity audience, it can be retrieved by pulumi output, it has following format

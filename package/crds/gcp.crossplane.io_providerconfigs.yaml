@@ -90,6 +90,7 @@ spec:
                     - Secret
                     - Environment
                     - Filesystem
+                    - WorkloadIdentity
                     type: string
                   workloadIdentity:
                     properties:
