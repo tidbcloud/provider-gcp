@@ -91,15 +91,25 @@ spec:
                     - Environment
                     - Filesystem
                     type: string
+                  workloadIdentity:
+                    properties:
+                      audience:
+                        type: string
+                      impersonateSa:
+                        type: string
+                      webIdentityTokenFile:
+                        type: string
+                    required:
+                    - audience
+                    - impersonateSa
+                    - webIdentityTokenFile
+                    type: object
                 required:
                 - source
                 type: object
               projectID:
                 description: ProjectID is the project name (not numerical ID) of this GCP ProviderConfig.
                 type: string
-            required:
-            - credentials
-            - projectID
             type: object
           status:
             description: A ProviderConfigStatus represents the status of a ProviderConfig.

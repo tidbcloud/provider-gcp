@@ -25,10 +25,10 @@ import (
 // A ProviderConfigSpec defines the desired state of a ProviderConfig.
 type ProviderConfigSpec struct {
 	// Credentials required to authenticate to this provider.
-	Credentials ProviderCredentials `json:"credentials"`
+	Credentials ProviderCredentials `json:"credentials,omitempty"`
 
 	// ProjectID is the project name (not numerical ID) of this GCP ProviderConfig.
-	ProjectID string `json:"projectID"`
+	ProjectID string `json:"projectID,omitempty"`
 }
 
 // ProviderCredentials required to authenticate.
@@ -37,7 +37,19 @@ type ProviderCredentials struct {
 	// +kubebuilder:validation:Enum=None;Secret;Environment;Filesystem
 	Source xpv1.CredentialsSource `json:"source"`
 
+	// +optional
 	xpv1.CommonCredentialSelectors `json:",inline"`
+
+	// +optional
+	WorkloadIdentitySource WorkloadIdentitySource `json:"workloadIdentity,omitempty"`
+}
+
+type WorkloadIdentitySource struct {
+	Audience string `json:"audience"`
+
+	ImpersonateSa string `json:"impersonateSa"`
+
+	WebIdentityTokenFile string `json:"webIdentityTokenFile"`
 }
 
 // A ProviderConfigStatus represents the status of a ProviderConfig.

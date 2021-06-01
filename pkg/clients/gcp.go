@@ -18,9 +18,14 @@ package gcp
 
 import (
 	"context"
+	"golang.org/x/oauth2"
+	"google.golang.org/api/impersonate"
+	"google.golang.org/api/sts/v1beta"
+	"io/ioutil"
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
@@ -33,6 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 
 	cmpv1beta1 "github.com/crossplane/provider-gcp/apis/compute/v1beta1"
 	"github.com/crossplane/provider-gcp/apis/v1alpha3"
@@ -51,6 +57,66 @@ func GetAuthInfo(ctx context.Context, c client.Client, mg resource.Managed) (pro
 	default:
 		return "", nil, errors.New("neither providerConfigRef nor providerRef is given")
 	}
+}
+
+const WorkloadIdentitySource  xpv1.CredentialsSource = "WorkloadIdentitySource"
+
+type oidcTokenSource struct {
+	// workload identity audience, it can be retrieved by pulumi output, it has following format
+	// "//iam.googleapis.com/projects/{projectId}/locations/global/workloadIdentityPools/${poolId}/providers/{providerId}"
+	audience         string
+	eksOidcTokenFile string // default "/var/run/secrets/eks.amazonaws.com/serviceaccount/token"
+}
+
+func (ts oidcTokenSource) Token() (*oauth2.Token, error) {
+	tokenData, err := ioutil.ReadFile(ts.eksOidcTokenFile)
+	if err != nil {
+		return nil, err
+	}
+	ctx := context.Background()
+	stsSvc, err := sts.NewService(ctx)
+	if err != nil {
+		return nil, err
+	}
+	req := sts.GoogleIdentityStsV1betaExchangeTokenRequest{
+		Audience:           ts.audience,
+		Scope:              "https://www.googleapis.com/auth/cloud-platform",
+		GrantType:          "urn:ietf:params:oauth:grant-type:token-exchange",
+		RequestedTokenType: "urn:ietf:params:oauth:token-type:access_token",
+		SubjectToken:       string(tokenData),
+		SubjectTokenType:   "urn:ietf:params:oauth:token-type:jwt",
+	}
+	resp, err := stsSvc.V1beta.Token(&req).Context(ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+	dur := time.Duration(resp.ExpiresIn) * time.Second
+	expiry := time.Now().Add(dur)
+
+	return &oauth2.Token{
+		AccessToken: resp.AccessToken,
+		TokenType:   resp.TokenType,
+		Expiry:      expiry,
+	}, nil
+}
+
+// ClientOption returns client auth options for the impersonated service account
+func ClientOption(targetSa string, audience string, tokenFile string) (option.ClientOption, error) {
+	ts := oidcTokenSource{
+		audience:         audience,
+		eksOidcTokenFile: tokenFile,
+	}
+	config := impersonate.CredentialsConfig{
+		TargetPrincipal: targetSa,
+		Scopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
+	}
+	ctx := context.Background()
+	impersonateTs, err := impersonate.CredentialsTokenSource(ctx, config, option.WithTokenSource(ts))
+	if err != nil {
+		return nil, err
+	}
+
+	return option.WithTokenSource(impersonateTs), nil
 }
 
 // UseProvider to return GCP authentication information.
@@ -79,6 +145,12 @@ func UseProviderConfig(ctx context.Context, c client.Client, mg resource.Managed
 	if err := c.Get(ctx, types.NamespacedName{Name: mg.GetProviderConfigReference().Name}, pc); err != nil {
 		return "", nil, err
 	}
+
+	if pc.Spec.Credentials.Source == WorkloadIdentitySource {
+		option, err := ClientOption(pc.Spec.Credentials.WorkloadIdentitySource.ImpersonateSa, pc.Spec.Credentials.WorkloadIdentitySource.Audience, pc.Spec.Credentials.WorkloadIdentitySource.WebIdentityTokenFile)
+		return pc.Spec.ProjectID, option, err
+	}
+
 	data, err := resource.CommonCredentialExtractor(ctx, pc.Spec.Credentials.Source, c, pc.Spec.Credentials.CommonCredentialSelectors)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "cannot get credentials")
