@@ -18,11 +18,13 @@ package gcp
 
 import (
 	"context"
+	"fmt"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/impersonate"
 	"google.golang.org/api/sts/v1beta"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 	"time"
@@ -147,7 +149,10 @@ func UseProviderConfig(ctx context.Context, c client.Client, mg resource.Managed
 	}
 
 	if pc.Spec.Credentials.Source == WorkloadIdentitySource {
-		option, err := ClientOption(pc.Spec.Credentials.WorkloadIdentitySource.ImpersonateSa, pc.Spec.Credentials.WorkloadIdentitySource.Audience, pc.Spec.Credentials.WorkloadIdentitySource.WebIdentityTokenFile)
+
+		option, err := ClientOption(getValueIfEnvPresent("GCP_IMPERSONATE_SA", pc.Spec.Credentials.WorkloadIdentitySource.ImpersonateSa),
+			getValueIfEnvPresent("GCP_WORKLOAD_IDENTITY_AUDIENCE", pc.Spec.Credentials.WorkloadIdentitySource.Audience),
+			getValueIfEnvPresent("AWS_WEB_IDENTITY_TOKEN_FILE", pc.Spec.Credentials.WorkloadIdentitySource.WebIdentityTokenFile))
 		return pc.Spec.ProjectID, option, err
 	}
 
@@ -156,6 +161,15 @@ func UseProviderConfig(ctx context.Context, c client.Client, mg resource.Managed
 		return "", nil, errors.Wrap(err, "cannot get credentials")
 	}
 	return pc.Spec.ProjectID, option.WithCredentialsJSON(data), nil
+}
+
+func getValueIfEnvPresent(key string, defaultValue string) string{
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	return value
 }
 
 // IsErrorNotFoundGRPC gets a value indicating whether the given error represents
