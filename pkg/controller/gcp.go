@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"github.com/crossplane/provider-gcp/pkg/controller/vpcpeering"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -50,6 +51,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		storage.SetupBucket,
 		storage.SetupBucketPolicy,
 		storage.SetupBucketPolicyMember,
+		vpcpeering.SetupPeering,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err

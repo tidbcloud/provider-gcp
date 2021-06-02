@@ -16,6 +16,7 @@ require (
 	github.com/mitchellh/copystructure v1.0.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1
+	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420
 	google.golang.org/api v0.47.0
 	google.golang.org/genproto v0.0.0-20210513213006-bf773b8c8384
 	google.golang.org/grpc v1.37.1
