@@ -26,6 +26,7 @@ import (
 	"github.com/crossplane/provider-gcp/pkg/controller/config"
 	"github.com/crossplane/provider-gcp/pkg/controller/iam"
 	"github.com/crossplane/provider-gcp/pkg/controller/storage"
+	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 )
 
 // Setup creates all GCP controllers with the supplied logger and adds them to
@@ -52,6 +53,8 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		storage.SetupBucketPolicy,
 		storage.SetupBucketPolicyMember,
 		vpcpeering.SetupPeering,
+		dns.SetupManagedZone,
+		dns.SetupResourceRecordSet,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err

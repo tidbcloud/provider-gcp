@@ -27,6 +27,7 @@ import (
 	gcpv1alpha3 "github.com/crossplane/provider-gcp/apis/v1alpha3"
 	gcpv1beta1 "github.com/crossplane/provider-gcp/apis/v1beta1"
 	vpcpeeringv1beta1 "github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
+	dns "github.com/crossplane/provider-gcp/apis/dns/v1alpha1"
 )
 
 func init() {
@@ -46,6 +47,7 @@ func init() {
 		storagev1alpha1.SchemeBuilder.AddToScheme,
 		storagev1alpha3.SchemeBuilder.AddToScheme,
 		vpcpeeringv1beta1.SchemeBuilder.AddToScheme,
+		dns.SchemeBuilder.AddToScheme,
 	)
 }
 
