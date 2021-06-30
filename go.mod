@@ -12,9 +12,7 @@ require (
 	github.com/googleapis/gax-go v1.0.3
 	github.com/googleapis/gax-go/v2 v2.0.5
 	github.com/imdario/mergo v0.3.10
-	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mitchellh/copystructure v1.0.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1

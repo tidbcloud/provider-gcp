@@ -22,7 +22,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/genproto/googleapis/pubsub/v1"
-	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/crossplane/provider-gcp/apis/pubsub/v1alpha1"
 	gcp "github.com/crossplane/provider-gcp/pkg/clients"
@@ -55,36 +54,6 @@ func topic() *pubsub.Topic {
 			AllowedPersistenceRegions: []string{"bar", "foo"},
 		},
 		KmsKeyName: "mykms",
-	}
-}
-
-func TestGenerateTopic(t *testing.T) {
-	type args struct {
-		projectID string
-		name      string
-		s         v1alpha1.TopicParameters
-	}
-	cases := map[string]struct {
-		args
-		out *pubsub.Topic
-	}{
-		"Full": {
-			args: args{
-				projectID: projectID,
-				name:      name,
-				s:         *params(),
-			},
-			out: topic(),
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			got := GenerateTopic(tc.projectID, tc.name, tc.s)
-			if diff := cmp.Diff(tc.out, got); diff != "" {
-				t.Errorf("GenerateTopic(...): -want, +got:\n%s", diff)
-			}
-		})
 	}
 }
 
@@ -150,46 +119,6 @@ func TestIsUpToDate(t *testing.T) {
 			got := IsUpToDate(tc.args.param, tc.args.obs) // nolint:govet
 			if diff := cmp.Diff(tc.result, got); diff != "" {
 				t.Errorf("IsUpToDate(...): -want, +got:\n%s", diff)
-			}
-		})
-	}
-}
-
-func TestGenerateUpdateRequest(t *testing.T) {
-	withoutKMS := topic()
-	withoutKMS.KmsKeyName = ""
-	type args struct {
-		projectID string
-		name      string
-		obs       pubsub.Topic
-		param     v1alpha1.TopicParameters
-	}
-	cases := map[string]struct {
-		args
-		result *pubsub.UpdateTopicRequest
-	}{
-		"Full": {
-			args: args{
-				projectID: projectID,
-				name:      name,
-				obs:       pubsub.Topic{},
-				param:     *params(),
-			},
-			result: &pubsub.UpdateTopicRequest{
-				Topic: withoutKMS,
-				UpdateMask: &field_mask.FieldMask{Paths: []string{
-					"messageStoragePolicy",
-					"labels",
-				}},
-			},
-		},
-	}
-
-	for name, tc := range cases { // nolint:govet
-		t.Run(name, func(t *testing.T) {
-			got := GenerateUpdateRequest(tc.args.projectID, tc.args.name, tc.args.param, tc.args.obs) // nolint:govet
-			if diff := cmp.Diff(tc.result, got); diff != "" {
-				t.Errorf("GenerateUpdateRequest(...): -want, +got:\n%s", diff)
 			}
 		})
 	}
