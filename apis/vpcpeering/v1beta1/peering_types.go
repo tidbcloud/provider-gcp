@@ -6,9 +6,11 @@ import (
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
+// PeeringParameters peering parameters
 type PeeringParameters struct {
+	// Project gcp project name
 	Project string `json:"project"`
-	
+	// Network request network name
 	Network string `json:"network"`
 
 	// Name: Name of the peering, which should conform to RFC1035.
@@ -27,7 +29,6 @@ type PeeringParameters struct {
 	// Google Compute Engine will automatically create and manage subnetwork
 	// routes between two networks when peering state is ACTIVE.
 	AutoCreateRoutes bool `json:"autoCreateRoutes,omitempty"`
-
 }
 
 // A Peering is a managed resource that represents a Google Cloud Service

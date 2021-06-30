@@ -56,14 +56,15 @@ type ManagedZoneObservation struct {
 // ManagedZone.
 type ManagedZoneSpec struct {
 	xpv1.ResourceSpec `json:",inline"`
-	ForProvider                  ManagedZoneParameters `json:"forProvider"`
+
+	ForProvider ManagedZoneParameters `json:"forProvider"`
 }
 
 // ManagedZoneStatus represents the observed state of a
 // ManagedZone.
 type ManagedZoneStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider                     ManagedZoneObservation `json:"atProvider,omitempty"`
+	AtProvider          ManagedZoneObservation `json:"atProvider,omitempty"`
 }
 
 // ManagedZone is a managed resource that represents a Google IAM Service Account.

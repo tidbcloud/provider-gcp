@@ -32,4 +32,3 @@ var (
 func init() {
 	SchemeBuilder.Register(&Peering{}, &PeeringList{})
 }
-

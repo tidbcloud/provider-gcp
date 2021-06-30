@@ -108,9 +108,9 @@ func TestLateInitialize(t *testing.T) {
 		},
 	}
 
-	for name, tc := range cases {
+	for name, tc := range cases { // nolint:govet
 		t.Run(name, func(t *testing.T) {
-			LateInitialize(tc.args.param, tc.args.obs)
+			LateInitialize(tc.args.param, tc.args.obs) // nolint:govet
 			if diff := cmp.Diff(tc.args.param, tc.out); diff != "" {
 				t.Errorf("LateInitialize(...): -want, +got:\n%s", diff)
 			}
@@ -145,9 +145,9 @@ func TestIsUpToDate(t *testing.T) {
 		},
 	}
 
-	for name, tc := range cases {
+	for name, tc := range cases { // nolint:govet
 		t.Run(name, func(t *testing.T) {
-			got := IsUpToDate(tc.args.param, tc.args.obs)
+			got := IsUpToDate(tc.args.param, tc.args.obs) // nolint:govet
 			if diff := cmp.Diff(tc.result, got); diff != "" {
 				t.Errorf("IsUpToDate(...): -want, +got:\n%s", diff)
 			}
@@ -185,9 +185,9 @@ func TestGenerateUpdateRequest(t *testing.T) {
 		},
 	}
 
-	for name, tc := range cases {
+	for name, tc := range cases { // nolint:govet
 		t.Run(name, func(t *testing.T) {
-			got := GenerateUpdateRequest(tc.args.projectID, tc.args.name, tc.args.param, tc.args.obs)
+			got := GenerateUpdateRequest(tc.args.projectID, tc.args.name, tc.args.param, tc.args.obs) // nolint:govet
 			if diff := cmp.Diff(tc.result, got); diff != "" {
 				t.Errorf("GenerateUpdateRequest(...): -want, +got:\n%s", diff)
 			}

@@ -49,7 +49,8 @@ type ResourceRecordSet struct {
 // ResourceRecordSetSpec defines the desired state of an gcp dns Resource Record.
 type ResourceRecordSetSpec struct {
 	xpv1.ResourceSpec `json:",inline"`
-	ForProvider                  ResourceRecordSetParameters `json:"forProvider"`
+
+	ForProvider ResourceRecordSetParameters `json:"forProvider"`
 }
 
 // ResourceRecordSetStatus represents the observed state of a ResourceRecordSet.

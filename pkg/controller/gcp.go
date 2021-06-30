@@ -18,15 +18,16 @@ package controller
 
 import (
 	"github.com/crossplane/provider-gcp/pkg/controller/vpcpeering"
+
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 
 	"github.com/crossplane/provider-gcp/pkg/controller/config"
+	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 	"github.com/crossplane/provider-gcp/pkg/controller/iam"
 	"github.com/crossplane/provider-gcp/pkg/controller/storage"
-	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 )
 
 // Setup creates all GCP controllers with the supplied logger and adds them to
