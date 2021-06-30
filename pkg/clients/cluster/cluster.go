@@ -367,7 +367,6 @@ func GeneratePrivateClusterConfig(in *v1beta1.PrivateClusterConfigSpec, cluster 
 		if cluster.PrivateClusterConfig == nil {
 			cluster.PrivateClusterConfig = &container.PrivateClusterConfig{}
 		}
-		//cluster.PrivateClusterConfig.EnablePeeringRouteSharing = gcp.BoolValue(in.EnablePeeringRouteSharing)
 		cluster.PrivateClusterConfig.EnablePrivateEndpoint = gcp.BoolValue(in.EnablePrivateEndpoint)
 		cluster.PrivateClusterConfig.EnablePrivateNodes = gcp.BoolValue(in.EnablePrivateNodes)
 		cluster.PrivateClusterConfig.MasterIpv4CidrBlock = gcp.StringValue(in.MasterIpv4CidrBlock)
