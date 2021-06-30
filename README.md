@@ -20,8 +20,11 @@ vpcpeering.gcp.crossplane.io_peerings.yaml
 ```
 *Note*
 
-For supporting gcp impersonation auth, we have to upgrade google api version. The high google api version is not incompatible with low version, it impact gke cluster controller.
-Currently , we just remove changed field to make lint successful. 
+provider-gcp does not support higher googleapi version util https://github.com/crossplane/provider-gcp/pull/308
+
+But we need to use higher google api to support workload identity, so we have to upgrade google api version to 0.47.0
+
+It is caused that the `gke` and `pubsub` do not works well.
 
 # Build Docker Image
 ## Build binary
