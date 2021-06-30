@@ -1173,49 +1173,6 @@ func TestGenerateResourceUsageExportConfig(t *testing.T) {
 	}
 }
 
-func TestGenerateTierSettings(t *testing.T) {
-	type args struct {
-		cluster *container.Cluster
-		params  *v1beta1.GKEClusterParameters
-	}
-
-	tests := map[string]struct {
-		args args
-		want *container.Cluster
-	}{
-		"Successful": {
-			args: args{
-				cluster: cluster(),
-				params: params(func(p *v1beta1.GKEClusterParameters) {
-					p.TierSettings = &v1beta1.TierSettings{
-						Tier: "STANDARD",
-					}
-				}),
-			},
-			want: cluster(func(c *container.Cluster) {
-				//c.TierSettings = &container.TierSettings{
-				//	Tier: "STANDARD",
-				//}
-			}),
-		},
-		"SuccessfulNil": {
-			args: args{
-				cluster: cluster(),
-				params:  params(),
-			},
-			want: cluster(),
-		},
-	}
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			GenerateTierSettings(tc.args.params.TierSettings, tc.args.cluster)
-			//if diff := cmp.Diff(tc.want.TierSettings, tc.args.cluster.TierSettings); diff != "" {
-			//	t.Errorf("GenerateTierSettings(...): -want, +got:\n%s", diff)
-			//}
-		})
-	}
-}
-
 func TestGenerateVerticalPodAutoscaling(t *testing.T) {
 	type args struct {
 		cluster *container.Cluster

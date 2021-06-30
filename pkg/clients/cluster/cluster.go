@@ -400,12 +400,7 @@ func GenerateResourceUsageExportConfig(in *v1beta1.ResourceUsageExportConfig, cl
 
 // GenerateTierSettings generates *container.TierSettings from *TierSettings.
 func GenerateTierSettings(in *v1beta1.TierSettings, cluster *container.Cluster) {
-	//if in != nil {
-	//	if cluster.TierSettings == nil {
-	//		cluster.TierSettings = &container.TierSettings{}
-	//	}
-	//	cluster.TierSettings.Tier = in.Tier
-	//}
+	// TODO
 }
 
 // GenerateVerticalPodAutoscaling generates *container.VerticalPodAutoscaling from *VerticalPodAutoscaling.
@@ -804,12 +799,6 @@ func LateInitializeSpec(spec *v1beta1.GKEClusterParameters, in container.Cluster
 	}
 
 	spec.Subnetwork = gcp.LateInitializeString(spec.Subnetwork, in.Subnetwork)
-
-	//if spec.TierSettings == nil && in.TierSettings != nil {
-	//	spec.TierSettings = &v1beta1.TierSettings{
-	//		Tier: in.TierSettings.Tier,
-	//	}
-	//}
 
 	if spec.VerticalPodAutoscaling == nil && in.VerticalPodAutoscaling != nil {
 		spec.VerticalPodAutoscaling = &v1beta1.VerticalPodAutoscaling{
