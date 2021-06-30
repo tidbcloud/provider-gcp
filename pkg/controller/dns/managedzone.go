@@ -4,26 +4,27 @@ import (
 	"context"
 	"fmt"
 
-
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"google.golang.org/api/dns/v1"
+	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"k8s.io/client-go/util/workqueue"
 
 	"github.com/crossplane/crossplane-runtime/pkg/event"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/meta"
+	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
-	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
+
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 
 	"github.com/crossplane/provider-gcp/apis/dns/v1alpha1"
+
 	gcp "github.com/crossplane/provider-gcp/pkg/clients"
 	dns2 "github.com/crossplane/provider-gcp/pkg/clients/dns"
-	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
 const (
@@ -60,26 +61,6 @@ type connecter struct {
 
 // Connect sets up dnsservice client using credentials from the provider
 func (c *connecter) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	//cr, ok := mg.(*v1alpha1.ManagedZone)
-	//if !ok {
-	//	return nil, errors.New(errNotManagedZone)
-	//}
-	//
-	//p := &gcpv1alpha3.Provider{}
-	//if err := c.kube.Get(ctx, types.NamespacedName{Name: cr.Spec.ProviderReference.Name}, p); err != nil {
-	//	return nil, errors.Wrap(err, errGetProvider)
-	//}
-	//
-	//if p.GetCredentialsSecretReference() == nil {
-	//	return nil, errors.New(errProviderSecretRef)
-	//}
-	//
-	//s := &corev1.Secret{}
-	//n := types.NamespacedName{Namespace: p.Spec.CredentialsSecretRef.Namespace, Name: p.Spec.CredentialsSecretRef.Name}
-	//if err := c.kube.Get(ctx, n, s); err != nil {
-	//	return nil, errors.Wrap(err, errGetProviderSecret)
-	//}
-
 	projectID, opts, err := gcp.GetAuthInfo(ctx, c.kube, mg)
 	if err != nil {
 		return nil, err

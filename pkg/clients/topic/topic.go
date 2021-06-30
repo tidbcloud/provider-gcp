@@ -53,7 +53,7 @@ func GenerateTopic(projectID, name string, s v1alpha1.TopicParameters) *pubsub.T
 
 // LateInitialize fills the empty fields of TopicParameters if the corresponding
 // fields are given in Topic.
-func LateInitialize(s *v1alpha1.TopicParameters, t pubsub.Topic) {
+func LateInitialize(s *v1alpha1.TopicParameters, t pubsub.Topic) { // nolint:govet
 	if len(s.Labels) == 0 && len(t.Labels) != 0 {
 		s.Labels = map[string]string{}
 		for k, v := range t.Labels {
@@ -69,17 +69,17 @@ func LateInitialize(s *v1alpha1.TopicParameters, t pubsub.Topic) {
 }
 
 // IsUpToDate checks whether Topic is configured with given TopicParameters.
-func IsUpToDate(s v1alpha1.TopicParameters, t pubsub.Topic) bool {
+func IsUpToDate(s v1alpha1.TopicParameters, t pubsub.Topic) bool { // nolint:govet
 	observed := &v1alpha1.TopicParameters{}
-	LateInitialize(observed, t)
+	LateInitialize(observed, t) // nolint:govet
 	return cmp.Equal(observed, &s)
 }
 
 // GenerateUpdateRequest produces an UpdateTopicRequest with the difference
 // between TopicParameters and Topic.
-func GenerateUpdateRequest(projectID, name string, s v1alpha1.TopicParameters, t pubsub.Topic) *pubsub.UpdateTopicRequest {
+func GenerateUpdateRequest(projectID, name string, s v1alpha1.TopicParameters, t pubsub.Topic) *pubsub.UpdateTopicRequest { // nolint:govet
 	observed := &v1alpha1.TopicParameters{}
-	LateInitialize(observed, t)
+	LateInitialize(observed, t) // nolint:govet
 	ut := &pubsub.UpdateTopicRequest{Topic: &pubsub.Topic{Name: fmt.Sprintf("projects/%s/topics/%s", projectID, name)}, UpdateMask: &field_mask.FieldMask{}}
 	if !cmp.Equal(s.MessageStoragePolicy, observed.MessageStoragePolicy) {
 		ut.UpdateMask.Paths = append(ut.UpdateMask.Paths, "messageStoragePolicy")

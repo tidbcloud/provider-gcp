@@ -2,33 +2,41 @@ package vpcpeering
 
 import (
 	"github.com/pkg/errors"
+
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
-	"github.com/crossplane/provider-gcp/pkg/clients"
-	"github.com/crossplane/provider-gcp/pkg/clients/peering"
-	"golang.org/x/net/context"
-	"k8s.io/client-go/util/workqueue"
-	ctrl "sigs.k8s.io/controller-runtime"
+
 	"github.com/crossplane/crossplane-runtime/pkg/event"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+
+	gcp "github.com/crossplane/provider-gcp/pkg/clients"
+
+	"github.com/crossplane/provider-gcp/pkg/clients/peering"
+
+	"golang.org/x/net/context"
 	compute "google.golang.org/api/compute/v1"
+	"k8s.io/client-go/util/workqueue"
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	"github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+
+	"github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
 )
+
 // Error strings.
 const (
-	errNewClient        = "cannot create new Compute Service"
+	errNewClient     = "cannot create new Compute Service"
 	errNotPeering    = "managed resource is not a Peering"
-	errListPeering  = "cannot list external Peering resources"
+	errListPeering   = "cannot list external Peering resources"
 	errCreatePeering = "cannot create external Peering resource"
 	errDeletePeering = "cannot delete external Peering resource"
 )
 
+// SetupPeering setup vpc peering controller.
 func SetupPeering(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 	name := managed.ControllerName(v1beta1.PeeringGroupKind)
 	return ctrl.NewControllerManagedBy(mgr).
@@ -120,7 +128,7 @@ func findPeering(name string, peerings []*compute.NetworkPeering) *compute.Netwo
 }
 
 func (e *external) Update(ctx context.Context, msg resource.Managed) (managed.ExternalUpdate, error) {
-	// TOOD: support update operation
+	// TODO: support update operation
 	return managed.ExternalUpdate{}, nil
 }
 

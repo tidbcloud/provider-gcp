@@ -1,3 +1,5 @@
+
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -48,6 +50,7 @@ spec:
                 - Delete
                 type: string
               forProvider:
+                description: PeeringParameters peering parameters
                 properties:
                   autoCreateRoutes:
                     description: 'AutoCreateRoutes: This field will be deprecated soon. Use exchange_subnet_routes in network_peering instead. Indicates whether full mesh connectivity is created and managed automatically between peered networks. Currently this field should always be true since Google Compute Engine will automatically create and manage subnetwork routes between two networks when peering state is ACTIVE.'
@@ -56,11 +59,13 @@ spec:
                     description: 'Name: Name of the peering, which should conform to RFC1035.'
                     type: string
                   network:
+                    description: Network request network name
                     type: string
                   peerNetwork:
                     description: 'PeerNetwork: URL of the peer network. It can be either full URL or partial URL. The peer network may belong to a different project. If the partial URL does not contain project, it is assumed that the peer network is in the same project as the current network.'
                     type: string
                   project:
+                    description: Project gcp project name
                     type: string
                 required:
                 - network

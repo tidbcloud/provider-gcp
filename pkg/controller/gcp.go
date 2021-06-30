@@ -18,15 +18,16 @@ package controller
 
 import (
 	"github.com/crossplane/provider-gcp/pkg/controller/vpcpeering"
+
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 
 	"github.com/crossplane/provider-gcp/pkg/controller/config"
+	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 	"github.com/crossplane/provider-gcp/pkg/controller/iam"
 	"github.com/crossplane/provider-gcp/pkg/controller/storage"
-	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 )
 
 // Setup creates all GCP controllers with the supplied logger and adds them to
@@ -34,21 +35,8 @@ import (
 func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 	for _, setup := range []func(ctrl.Manager, logging.Logger, workqueue.RateLimiter) error{
 		config.Setup,
-		//cache.SetupCloudMemorystoreInstance,
-		//compute.SetupGlobalAddress,
-		//compute.SetupNetwork,
-		//compute.SetupSubnetwork,
-		//container.SetupGKECluster,
-		//container.SetupNodePool,
-		//database.SetupCloudSQLInstance,
 		iam.SetupServiceAccount,
-		//iam.SetupServiceAccountKey,
 		iam.SetupServiceAccountPolicy,
-		//kms.SetupKeyRing,
-		//kms.SetupCryptoKey,
-		//kms.SetupCryptoKeyPolicy,
-		//pubsub.SetupTopic,
-		//servicenetworking.SetupConnection,
 		storage.SetupBucket,
 		storage.SetupBucketPolicy,
 		storage.SetupBucketPolicyMember,
