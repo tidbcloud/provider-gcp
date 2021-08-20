@@ -24,9 +24,9 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 
 	"github.com/crossplane/provider-gcp/pkg/controller/config"
+	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 	"github.com/crossplane/provider-gcp/pkg/controller/iam"
 	"github.com/crossplane/provider-gcp/pkg/controller/storage"
-	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 )
 
 // Setup creates all GCP controllers with the supplied logger and adds them to
@@ -42,7 +42,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		//container.SetupNodePool,
 		//database.SetupCloudSQLInstance,
 		iam.SetupServiceAccount,
-		//iam.SetupServiceAccountKey,
+		iam.SetupServiceAccountKey,
 		iam.SetupServiceAccountPolicy,
 		//kms.SetupKeyRing,
 		//kms.SetupCryptoKey,
