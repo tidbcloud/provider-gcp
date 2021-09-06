@@ -1,30 +1,31 @@
 package vpcpeering
 
 import (
-	"github.com/pkg/errors"
-	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
-	"github.com/crossplane/provider-gcp/pkg/clients"
-	"github.com/crossplane/provider-gcp/pkg/clients/peering"
-	"golang.org/x/net/context"
-	"k8s.io/client-go/util/workqueue"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"github.com/crossplane/crossplane-runtime/pkg/event"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
+	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	gcp "github.com/crossplane/provider-gcp/pkg/clients"
+	"github.com/crossplane/provider-gcp/pkg/clients/peering"
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 	compute "google.golang.org/api/compute/v1"
+	"k8s.io/client-go/util/workqueue"
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	"github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+	"github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
 )
+
 // Error strings.
 const (
-	errNewClient        = "cannot create new Compute Service"
+	errNewClient     = "cannot create new Compute Service"
 	errNotPeering    = "managed resource is not a Peering"
-	errListPeering  = "cannot list external Peering resources"
+	errListPeering   = "cannot list external Peering resources"
 	errCreatePeering = "cannot create external Peering resource"
 	errDeletePeering = "cannot delete external Peering resource"
 )
@@ -78,7 +79,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errListPeering)
 	}
 
-	o := peering.Observation{Peering: findPeering(peer.Spec.ForProvider.Name, r.Peerings)}
+	o := peering.Observation{Peering: findPeering(peer.Spec.ForProvider.PeerNetwork, r.Peerings)}
 	if o.Peering == nil {
 		return managed.ExternalObservation{ResourceExists: false}, nil
 	}
@@ -110,10 +111,10 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 	return managed.ExternalCreation{}, errors.Wrap(resource.Ignore(gcp.IsErrorAlreadyExists, err), errCreatePeering)
 }
 
-func findPeering(name string, peerings []*compute.NetworkPeering) *compute.NetworkPeering {
-	for _, peering := range peerings {
-		if peering.Name == name {
-			return peering
+func findPeering(peerNetwork string, peerings []*compute.NetworkPeering) *compute.NetworkPeering {
+	for _, p := range peerings {
+		if p.Network == peerNetwork {
+			return p
 		}
 	}
 	return nil
