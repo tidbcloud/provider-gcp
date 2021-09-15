@@ -101,6 +101,10 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	if gcp.IsErrorNotFound(err) {
 		return managed.ExternalObservation{ResourceExists: false}, nil
 	}
+	// GCP returns code 403 on getting deleted service accounts.
+	if gcp.IsErrorForbidden(err) {
+		return managed.ExternalObservation{ResourceExists: false}, nil
+	}
 	if err != nil {
 		return managed.ExternalObservation{}, errors.Wrap(err, errGet)
 	}
