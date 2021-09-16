@@ -97,6 +97,15 @@ func IsErrorNotFoundGRPC(err error) bool {
 	return ok && grpcErr.GRPCStatus().Code() == codes.NotFound
 }
 
+// IsErrorForbidden gets a value indicating whether the given error represents a "forbidden" response from the Google API
+func IsErrorForbidden(err error) bool {
+	if err == nil {
+		return false
+	}
+	googleapiErr, ok := err.(*googleapi.Error)
+	return ok && googleapiErr.Code == http.StatusForbidden
+}
+
 // IsErrorNotFound gets a value indicating whether the given error represents a "not found" response from the Google API
 func IsErrorNotFound(err error) bool {
 	if err == nil {
