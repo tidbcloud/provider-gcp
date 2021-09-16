@@ -134,7 +134,7 @@ func (s *serviceAccountKeyExternalClient) Observe(ctx context.Context,
 
 	if err != nil {
 		return managed.ExternalObservation{},
-			errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errGetServiceAccountKey)
+			errors.Wrap(resource.IgnoreAny(err, gcp.IsErrorAlreadyExists, gcp.IsErrorForbidden), errGetServiceAccountKey)
 	}
 
 	if err := serviceaccountkey.PopulateSaKey(cr, fromProvider); err != nil {
