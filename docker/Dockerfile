@@ -1,4 +1,4 @@
-FROM alpine:3.10 as base
+FROM pingcap/alpine-glibc:alpine-3.14.3 as base
 
 # this fils is generate by go build
 COPY crossplane-gcp-provider  /crossplane-gcp-provider
