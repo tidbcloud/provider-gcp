@@ -86,7 +86,21 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	if o.Peering == nil {
 		return managed.ExternalObservation{ResourceExists: false}, nil
 	}
-
+	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
+	if err != nil {
+		return managed.ExternalObservation{ResourceExists: false}, err
+	}
+	if project == peer.Spec.ForProvider.Project {
+		r2, err := e.compute.Networks.Get(project, network).Do()
+		if err != nil {
+			return managed.ExternalObservation{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errListPeering)
+		}
+		requesterPeerNetwork := newPeerNetwork(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network)
+		peering := findPeering(requesterPeerNetwork, r2.Peerings)
+		if peering == nil {
+			return managed.ExternalObservation{ResourceExists: false}, nil
+		}
+	}
 	eo := managed.ExternalObservation{
 		ResourceExists:   true,
 		ResourceUpToDate: peering.IsUpToDate(peer.Spec.ForProvider, o.Peering),
@@ -121,7 +135,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 	if project == peer.Spec.ForProvider.Project {
 		_, err := e.compute.Networks.AddPeering(project, network, &compute.NetworksAddPeeringRequest{
 			Name:             peer.Spec.ForProvider.Name,
-			PeerNetwork:      peer.Spec.ForProvider.Network,
+			PeerNetwork:      newPeerNetwork(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network),
 			AutoCreateRoutes: true,
 		}).Do()
 		if err != nil && !gcp.IsErrorAlreadyExists(err) {
