@@ -1,6 +1,9 @@
 package vpcpeering
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/crossplane/crossplane-runtime/pkg/event"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
@@ -83,7 +86,21 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	if o.Peering == nil {
 		return managed.ExternalObservation{ResourceExists: false}, nil
 	}
-
+	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
+	if err != nil {
+		return managed.ExternalObservation{ResourceExists: false}, err
+	}
+	if project == peer.Spec.ForProvider.Project {
+		r2, err := e.compute.Networks.Get(project, network).Do()
+		if err != nil {
+			return managed.ExternalObservation{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errListPeering)
+		}
+		requesterPeerNetwork := newPeerNetwork(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network)
+		peering := findPeering(requesterPeerNetwork, r2.Peerings)
+		if peering == nil {
+			return managed.ExternalObservation{ResourceExists: false}, nil
+		}
+	}
 	eo := managed.ExternalObservation{
 		ResourceExists:   true,
 		ResourceUpToDate: peering.IsUpToDate(peer.Spec.ForProvider, o.Peering),
@@ -107,7 +124,24 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		PeerNetwork:      peer.Spec.ForProvider.PeerNetwork,
 		AutoCreateRoutes: true,
 	}).Do()
+	if err != nil {
+		return managed.ExternalCreation{}, err
+	}
 
+	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
+	if err != nil {
+		return managed.ExternalCreation{}, err
+	}
+	if project == peer.Spec.ForProvider.Project {
+		_, err := e.compute.Networks.AddPeering(project, network, &compute.NetworksAddPeeringRequest{
+			Name:             peer.Spec.ForProvider.Name,
+			PeerNetwork:      newPeerNetwork(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network),
+			AutoCreateRoutes: true,
+		}).Do()
+		if err != nil && !gcp.IsErrorAlreadyExists(err) {
+			return managed.ExternalCreation{}, err
+		}
+	}
 	return managed.ExternalCreation{}, errors.Wrap(resource.Ignore(gcp.IsErrorAlreadyExists, err), errCreatePeering)
 }
 
@@ -137,5 +171,31 @@ func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
 		Name: peer.Spec.ForProvider.Name,
 	}).Do()
 
+	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
+	if err != nil {
+		return err
+	}
+	if project == peer.Spec.ForProvider.Project {
+		_, err = e.compute.Networks.RemovePeering(project, network, &compute.NetworksRemovePeeringRequest{
+			Name: peer.Spec.ForProvider.Name,
+		}).Do()
+		if err != nil && !gcp.IsErrorNotFound(err) {
+			return err
+		}
+	}
+
 	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeletePeering)
+}
+
+func parsePeerNetwork(peerNetwork string) (project string, Network string, err error) {
+	res := strings.TrimPrefix(peerNetwork, "https://www.googleapis.com/compute/v1/projects/")
+	item := strings.Split(res, "/")
+	if len(item) < 2 {
+		return "", "", fmt.Errorf("invalid peer network url")
+	}
+
+	return item[0], item[len(item)-1], nil
+}
+func newPeerNetwork(project string, network string) string {
+	return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", project, network)
 }
