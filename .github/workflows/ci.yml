@@ -92,4 +92,5 @@ jobs:
       - name: Push the image to GCR - tag
         if: github.ref != 'refs/heads/pingcap/provider-gcp'
         run: |
+          docker tag ${{ env.GCR_REG }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ env.GCR_REG }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}
           docker push ${{ env.GCR_REG }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}
