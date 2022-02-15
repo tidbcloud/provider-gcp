@@ -52,7 +52,7 @@ jobs:
 
       - name: Build the binary
         working-directory: ./
-        run: GOOS=linux CGO_ENABLED= go build -o docker/crossplane-gcp-provider cmd/provider/main.go
+        run: GOOS=linux CGO_ENABLED=0 go build -o docker/crossplane-gcp-provider cmd/provider/main.go
       
       - id: auth
         uses: google-github-actions/auth@v0.4.0
