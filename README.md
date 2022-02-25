@@ -1,5 +1,19 @@
 # provider-gcp
 
+## How to release
+
+```shell
+# Make the local branch up to date
+git checkout pingcap/provider-gcp
+git pull origin pingcap/provider-gcp
+
+# Change the version number
+git tag v0.1.0-dev
+git push --tags
+```
+
+Then it will build and push the docker image automatically by GitHub Action. After the image is pushed, file a PR like this: https://github.com/tidbcloud/infra-cd/pull/628
+
 ## Overview
 
 `provider-gcp` is the Crossplane infrastructure provider for the [Google Cloud
