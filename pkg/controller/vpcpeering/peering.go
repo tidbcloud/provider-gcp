@@ -21,6 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+	"github.com/crossplane/crossplane-runtime/pkg/meta"
 	"github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1"
 )
 
@@ -31,6 +32,8 @@ const (
 	errListPeering   = "cannot list external Peering resources"
 	errCreatePeering = "cannot create external Peering resource"
 	errDeletePeering = "cannot delete external Peering resource"
+	// When GCP deletes a non-existing peering, the returned status code is 400, and the error is `There is no peering..., bad request`
+	gcpErrDeletePeering = "There is no peering"
 )
 
 func SetupPeering(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
@@ -82,14 +85,17 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errListPeering)
 	}
 
-	o := peering.Observation{Peering: findPeering(peer.Spec.ForProvider.PeerNetwork, r.Peerings)}
-	if o.Peering == nil {
-		return managed.ExternalObservation{ResourceExists: false}, nil
-	}
 	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
 	if err != nil {
 		return managed.ExternalObservation{ResourceExists: false}, err
 	}
+
+	o := peering.Observation{Peering: findPeering(peer.Spec.ForProvider.PeerNetwork, r.Peerings)}
+	// If it is not the same project peering, if the request peering is empty, it can be considered that the resource does not exist
+	if o.Peering == nil && project != peer.Spec.ForProvider.Project {
+		return managed.ExternalObservation{ResourceExists: false}, nil
+	}
+
 	if project == peer.Spec.ForProvider.Project {
 		r2, err := e.compute.Networks.Get(project, network).Do()
 		if err != nil {
@@ -97,9 +103,20 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		}
 		requesterPeerNetwork := newPeerNetwork(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network)
 		peering := findPeering(requesterPeerNetwork, r2.Peerings)
-		if peering == nil {
-			return managed.ExternalObservation{ResourceExists: false}, nil
+		// If it is the same project peering, if the request peering and accepter peering is empty, it can be considered that the resource does not exist.
+		// Because we need ensure all peering will removed from GCP cloud when CRD deleted
+		if meta.WasDeleted(peer) {
+			// It is considered non-exist only if requester and accepter peering is empty
+			if peering == nil && o.Peering == nil {
+				return managed.ExternalObservation{ResourceExists: false}, nil
+			}
+		} else {
+			// It is considered non-exist only if requester or accepter peering is empty
+			if peering == nil || o.Peering == nil {
+				return managed.ExternalObservation{ResourceExists: false}, nil
+			}
 		}
+
 	}
 	eo := managed.ExternalObservation{
 		ResourceExists:   true,
@@ -124,7 +141,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		PeerNetwork:      peer.Spec.ForProvider.PeerNetwork,
 		AutoCreateRoutes: true,
 	}).Do()
-	if err != nil {
+	if err != nil && !gcp.IsErrorAlreadyExists(err) {
 		return managed.ExternalCreation{}, err
 	}
 
@@ -170,16 +187,20 @@ func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
 	_, err := e.compute.Networks.RemovePeering(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network, &compute.NetworksRemovePeeringRequest{
 		Name: peer.Spec.ForProvider.Name,
 	}).Do()
+	if err != nil && !gcp.IsErrorNotFound(err) && !isErrorNoPeering(err) {
+		return err
+	}
 
 	project, network, err := parsePeerNetwork(peer.Spec.ForProvider.PeerNetwork)
 	if err != nil {
 		return err
 	}
+
 	if project == peer.Spec.ForProvider.Project {
 		_, err = e.compute.Networks.RemovePeering(project, network, &compute.NetworksRemovePeeringRequest{
 			Name: peer.Spec.ForProvider.Name,
 		}).Do()
-		if err != nil && !gcp.IsErrorNotFound(err) {
+		if err != nil && !gcp.IsErrorNotFound(err) && !isErrorNoPeering(err) {
 			return err
 		}
 	}
@@ -198,4 +219,11 @@ func parsePeerNetwork(peerNetwork string) (project string, Network string, err e
 }
 func newPeerNetwork(project string, network string) string {
 	return fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", project, network)
+}
+
+func isErrorNoPeering(err error) bool {
+	if strings.Contains(err.Error(), gcpErrDeletePeering) {
+		return true
+	}
+	return false
 }
