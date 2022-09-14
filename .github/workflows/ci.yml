@@ -14,7 +14,7 @@ on:
 #      - pingcap/provider-gcp
 
 env:
-  GO_VERSION: '1.16'
+  GO_VERSION: '1.18'
   GCR_REG: gcr.io/pingcap-public/crossplane
   PROJECT_ID: pingcap-public
   IMAGE_NAME: provider-gcp
