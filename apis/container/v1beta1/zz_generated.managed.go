@@ -43,6 +43,11 @@ func (mg *GKECluster) GetProviderReference() *xpv1.Reference {
 	return mg.Spec.ProviderReference
 }
 
+// GetPublishConnectionDetailsTo of this GKECluster.
+func (mg *GKECluster) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
+	return mg.Spec.PublishConnectionDetailsTo
+}
+
 // GetWriteConnectionSecretToReference of this GKECluster.
 func (mg *GKECluster) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
@@ -69,6 +74,11 @@ Deprecated: Use SetProviderConfigReference.
 */
 func (mg *GKECluster) SetProviderReference(r *xpv1.Reference) {
 	mg.Spec.ProviderReference = r
+}
+
+// SetPublishConnectionDetailsTo of this GKECluster.
+func (mg *GKECluster) SetPublishConnectionDetailsTo(r *xpv1.PublishConnectionDetailsTo) {
+	mg.Spec.PublishConnectionDetailsTo = r
 }
 
 // SetWriteConnectionSecretToReference of this GKECluster.
