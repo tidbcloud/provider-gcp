@@ -8,6 +8,7 @@ require (
 	cloud.google.com/go/storage v1.14.0
 	github.com/crossplane/crossplane-runtime v0.15.1-0.20220315141414-988c9ba9c255
 	github.com/crossplane/crossplane-tools v0.0.0-20220310165030-1f43fc12793e
+	github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1 v0.0.0-00010101000000-000000000000
 	github.com/google/go-cmp v0.5.6
 	github.com/googleapis/gax-go v1.0.3
 	github.com/googleapis/gax-go/v2 v2.0.5
@@ -27,3 +28,5 @@ require (
 	sigs.k8s.io/controller-runtime v0.11.0
 	sigs.k8s.io/controller-tools v0.8.0
 )
+
+replace github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1 => ./apis/vpcpeering/v1beta1
