@@ -17,6 +17,8 @@ limitations under the License.
 package controller
 
 import (
+	"github.com/crossplane/provider-gcp/pkg/controller/compute"
+	"github.com/crossplane/provider-gcp/pkg/controller/container"
 	"github.com/crossplane/provider-gcp/pkg/controller/vpcpeering"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -36,10 +38,10 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		config.Setup,
 		//cache.SetupCloudMemorystoreInstance,
 		//compute.SetupGlobalAddress,
-		//compute.SetupNetwork,
-		//compute.SetupSubnetwork,
-		//container.SetupGKECluster,
-		//container.SetupNodePool,
+		compute.SetupNetwork,
+		compute.SetupSubnetwork,
+		container.SetupGKECluster,
+		container.SetupNodePool,
 		//database.SetupCloudSQLInstance,
 		iam.SetupServiceAccount,
 		iam.SetupServiceAccountKey,
