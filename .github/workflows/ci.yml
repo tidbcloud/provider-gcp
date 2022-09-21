@@ -9,9 +9,9 @@ on:
     tags:
       - "*"
   # Uncomment below lines to debug this action in PR
-#  pull_request:
-#    branches:
-#      - pingcap/provider-gcp
+  pull_request:
+    branches:
+      - pingcap/provider-gcp
 
 env:
   GO_VERSION: '1.16'
