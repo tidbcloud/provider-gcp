@@ -22,7 +22,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/crossplane/provider-gcp/pkg/controller/config"
-	"github.com/crossplane/provider-gcp/pkg/controller/dns"
 	"github.com/crossplane/provider-gcp/pkg/controller/vpcpeering"
 )
 
@@ -50,8 +49,8 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		// storage.SetupBucketPolicy,
 		// storage.SetupBucketPolicyMember,
 		vpcpeering.SetupPeering,
-		dns.SetupManagedZone,
-		dns.SetupResourceRecordSet,
+		// dns.SetupManagedZone,
+		// dns.SetupResourceRecordSet,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err
