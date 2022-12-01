@@ -8,7 +8,7 @@ import (
 
 type PeeringParameters struct {
 	Project string `json:"project"`
-	
+
 	Network string `json:"network"`
 
 	// Name: Name of the peering, which should conform to RFC1035.
@@ -28,6 +28,17 @@ type PeeringParameters struct {
 	// routes between two networks when peering state is ACTIVE.
 	AutoCreateRoutes bool `json:"autoCreateRoutes,omitempty"`
 
+	// ImportCustomRoutes: Whether to import the custom routes from peer
+	// network. The default value is false.
+	// NOTE: only used when creating the peering.
+	ImportCustomRoutes bool `json:"importCustomRoutes,omitempty"`
+
+	// ImportSubnetRoutesWithPublicIp: Whether subnet routes with public IP
+	// range are imported. The default value is false. IPv4 special-use
+	// ranges are always imported from peers and are not controlled by this
+	// field.
+	// NOTE: only used when creating the peering.
+	ImportSubnetRoutesWithPublicIp bool `json:"importSubnetRoutesWithPublicIp,omitempty"`
 }
 
 // A Peering is a managed resource that represents a Google Cloud Service
