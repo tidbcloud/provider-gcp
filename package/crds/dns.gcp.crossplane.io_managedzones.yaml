@@ -50,9 +50,13 @@ spec:
             description: ManagedZoneSpec defines the desired state of a ManagedZone.
             properties:
               deletionPolicy:
+                default: Delete
                 description: DeletionPolicy specifies what will happen to the underlying
                   external when this managed resource is deleted - either "Delete"
                   or "Orphan" the external resource.
+                enum:
+                - Orphan
+                - Delete
                 type: string
               forProvider:
                 description: ManagedZoneParameters defines parameters for a ManagedZone.
@@ -88,6 +92,8 @@ spec:
                     type: string
                 type: object
               providerConfigRef:
+                default:
+                  name: default
                 description: ProviderConfigReference specifies how the provider that
                   will be used to create, observe, update, and delete this managed
                   resource should be configured.
@@ -99,11 +105,15 @@ spec:
                     description: Policies for referencing.
                     properties:
                       resolution:
+                        default: Required
                         description: Resolution specifies whether resolution of this
                           reference is required. The default is 'Required', which
                           means the reconcile will fail if the reference cannot be
                           resolved. 'Optional' means this reference will be a no-op
                           if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
                         type: string
                       resolve:
                         description: Resolve specifies when this reference should
@@ -111,6 +121,9 @@ spec:
                           to resolve the reference only when the corresponding field
                           is not present. Use 'Always' to resolve the reference on
                           every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
                         type: string
                     type: object
                 required:
@@ -128,11 +141,15 @@ spec:
                     description: Policies for referencing.
                     properties:
                       resolution:
+                        default: Required
                         description: Resolution specifies whether resolution of this
                           reference is required. The default is 'Required', which
                           means the reconcile will fail if the reference cannot be
                           resolved. 'Optional' means this reference will be a no-op
                           if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
                         type: string
                       resolve:
                         description: Resolve specifies when this reference should
@@ -140,6 +157,9 @@ spec:
                           to resolve the reference only when the corresponding field
                           is not present. Use 'Always' to resolve the reference on
                           every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
                         type: string
                     type: object
                 required:
@@ -153,6 +173,8 @@ spec:
                   username, and password required to connect to the managed resource.
                 properties:
                   configRef:
+                    default:
+                      name: default
                     description: SecretStoreConfigRef specifies which secret store
                       config should be used for this ConnectionSecret.
                     properties:
@@ -163,11 +185,15 @@ spec:
                         description: Policies for referencing.
                         properties:
                           resolution:
+                            default: Required
                             description: Resolution specifies whether resolution of
                               this reference is required. The default is 'Required',
                               which means the reconcile will fail if the reference
                               cannot be resolved. 'Optional' means this reference
                               will be a no-op if it cannot be resolved.
+                            enum:
+                            - Required
+                            - Optional
                             type: string
                           resolve:
                             description: Resolve specifies when this reference should
@@ -175,6 +201,9 @@ spec:
                               attempt to resolve the reference only when the corresponding
                               field is not present. Use 'Always' to resolve the reference
                               on every reconcile.
+                            enum:
+                            - Always
+                            - IfNotPresent
                             type: string
                         type: object
                     required:
