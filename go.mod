@@ -31,7 +31,7 @@ require (
 	k8s.io/apimachinery v0.25.2
 	k8s.io/client-go v0.25.0
 	sigs.k8s.io/controller-runtime v0.13.0
-	sigs.k8s.io/controller-tools v0.8.0
+	sigs.k8s.io/controller-tools v0.9.2
 )
 
 replace github.com/crossplane/provider-gcp/apis/vpcpeering/v1beta1 => ./apis/vpcpeering/v1beta1

@@ -136,11 +136,18 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 
 	peer.Status.SetConditions(xpv1.Creating())
 
-	_, err := e.compute.Networks.AddPeering(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network, &compute.NetworksAddPeeringRequest{
-		Name:             peer.Spec.ForProvider.Name,
-		PeerNetwork:      peer.Spec.ForProvider.PeerNetwork,
-		AutoCreateRoutes: true,
-	}).Do()
+	req := &compute.NetworksAddPeeringRequest{
+		// As the field says: we must specify all peering related parameters (name, peer network,
+		// exchange_subnet_routes) in the network_peering field
+		NetworkPeering: &compute.NetworkPeering{
+			Name:                           peer.Spec.ForProvider.Name,
+			Network:                        peer.Spec.ForProvider.PeerNetwork,
+			ExchangeSubnetRoutes:           true,
+			ImportCustomRoutes:             peer.Spec.ForProvider.ImportCustomRoutes,
+			ImportSubnetRoutesWithPublicIp: peer.Spec.ForProvider.ImportSubnetRoutesWithPublicIp,
+		},
+	}
+	_, err := e.compute.Networks.AddPeering(peer.Spec.ForProvider.Project, peer.Spec.ForProvider.Network, req).Do()
 	if err != nil && !gcp.IsErrorAlreadyExists(err) {
 		return managed.ExternalCreation{}, err
 	}
