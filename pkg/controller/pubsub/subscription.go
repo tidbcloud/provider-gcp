@@ -59,13 +59,19 @@ func SetupSubscription(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.SubscriptionGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&subscriptionConnector{client: mgr.GetClient()}),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1alpha1.SubscriptionGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -162,14 +168,18 @@ func (e *subscriptionExternal) Update(ctx context.Context, mg resource.Managed) 
 }
 
 // Delete initiates an deletion of the external resource.
-func (e *subscriptionExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *subscriptionExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Subscription)
 	if !ok {
-		return errors.New(errNotSubscription)
+		return managed.ExternalDelete{}, errors.New(errNotSubscription)
 	}
 
 	_, err := e.ps.Projects.Subscriptions.Delete(subscription.GetFullyQualifiedName(e.projectID,
 		meta.GetExternalName(cr))).Context(ctx).Do()
 
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubscription)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubscription)
+}
+func (e *subscriptionExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

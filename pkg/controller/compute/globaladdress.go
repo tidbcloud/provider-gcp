@@ -60,14 +60,19 @@ func SetupGlobalAddress(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1beta1.GlobalAddressGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&gaConnector{kube: mgr.GetClient()}),
-		managed.WithConnectionPublishers(),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1beta1.GlobalAddressGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -149,13 +154,18 @@ func (e *gaExternal) Update(_ context.Context, _ resource.Managed) (managed.Exte
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *gaExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *gaExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.GlobalAddress)
 	if !ok {
-		return errors.New(errNotGlobalAddress)
+		return managed.ExternalDelete{}, errors.New(errNotGlobalAddress)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := e.GlobalAddresses.Delete(e.projectID, meta.GetExternalName(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteGlobalAddress)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteGlobalAddress)
+}
+
+func (e *gaExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

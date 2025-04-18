@@ -64,14 +64,19 @@ func SetupSubnetwork(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1beta1.SubnetworkGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&subnetworkConnector{kube: mgr.GetClient()}),
-		managed.WithConnectionPublishers(),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1beta1.SubnetworkGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -179,13 +184,18 @@ func (c *subnetworkExternal) Update(ctx context.Context, mg resource.Managed) (m
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateSubnetworkFailed)
 }
 
-func (c *subnetworkExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *subnetworkExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.Subnetwork)
 	if !ok {
-		return errors.New(errNotSubnetwork)
+		return managed.ExternalDelete{}, errors.New(errNotSubnetwork)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Subnetworks.Delete(c.projectID, cr.Spec.ForProvider.Region, meta.GetExternalName(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubnetworkFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubnetworkFailed)
+}
+
+func (e *subnetworkExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

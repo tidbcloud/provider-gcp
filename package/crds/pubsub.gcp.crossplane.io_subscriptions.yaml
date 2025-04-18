@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.11.3
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.16.0
   name: subscriptions.pubsub.gcp.crossplane.io
 spec:
   group: pubsub.gcp.crossplane.io
@@ -29,14 +28,19 @@ spec:
           Subscription.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -45,9 +49,14 @@ spec:
             properties:
               deletionPolicy:
                 default: Delete
-                description: DeletionPolicy specifies what will happen to the underlying
-                  external when this managed resource is deleted - either "Delete"
-                  or "Orphan" the external resource.
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
                 enum:
                 - Orphan
                 - Delete
@@ -57,64 +66,67 @@ spec:
                   Subscription.
                 properties:
                   ackDeadlineSeconds:
-                    description: AckDeadlineSeconds is the approximate amount of time
-                      Pub/Sub waits for the subscriber to acknowledge receipt before
-                      resending the message. The minimum custom deadline you can specify
-                      is 10 seconds. The maximum custom deadline you can specify is
-                      600 seconds (10 minutes). If this parameter is 0, a default
-                      value of 10 seconds is used.
+                    description: |-
+                      AckDeadlineSeconds is the approximate amount of time Pub/Sub waits for
+                      the subscriber to acknowledge receipt before resending the message.
+                      The minimum custom deadline you can specify is 10 seconds. The maximum
+                      custom deadline you can specify is 600 seconds (10 minutes). If this
+                      parameter is 0, a default value of 10 seconds is used.
                     format: int64
                     type: integer
                   deadLetterPolicy:
-                    description: DeadLetterPolicy is the policy that specifies the
-                      conditions for dead lettering messages in this subscription.
-                      If dead_letter_policy is not set, dead lettering is disabled.
+                    description: |-
+                      DeadLetterPolicy is the policy that specifies the conditions for dead
+                      lettering messages in this subscription. If dead_letter_policy is not
+                      set, dead lettering is disabled.
                     properties:
                       deadLetterTopic:
-                        description: DeadLetterTopic is the name of the topic to which
-                          dead letter messages should be published. Format is `projects/{project}/topics/{topic}`.
+                        description: |-
+                          DeadLetterTopic is the name of the topic to which dead letter messages
+                          should be published. Format is `projects/{project}/topics/{topic}`.
                         type: string
                       maxDeliveryAttempts:
-                        description: MaxDeliveryAttempts is the maximum number of
-                          delivery attempts for any message. The value must be between
-                          5 and 100.
+                        description: |-
+                          MaxDeliveryAttempts is the maximum number of delivery attempts for any
+                          message. The value must be between 5 and 100.
                         format: int64
                         type: integer
                     type: object
                   detached:
-                    description: Detached is the flag which indicates whether the
-                      subscription is detached from its topic. Detached subscriptions
-                      don't receive messages from their topic and don't retain any
-                      backlog.
+                    description: |-
+                      Detached is the flag which indicates whether the subscription is detached from its
+                      topic. Detached subscriptions don't receive messages from their topic
+                      and don't retain any backlog.
                     type: boolean
                   enableMessageOrdering:
-                    description: EnableMessageOrdering is the flag which controls
-                      message delivery order to subscribers. When it is true, messages
-                      published with the same `ordering_key` in `PubsubMessage` will
-                      be delivered to the subscribers in the order in which they are
-                      received by the Pub/Sub system. Otherwise, they may be delivered
-                      in any order.
+                    description: |-
+                      EnableMessageOrdering is the flag which controls message delivery order
+                      to subscribers. When it is true, messages published with the same
+                      `ordering_key` in `PubsubMessage` will be delivered to the subscribers
+                      in the order in which they are received by the Pub/Sub system.
+                      Otherwise, they may be delivered in any order.
                     type: boolean
                   expirationPolicy:
-                    description: ExpirationPolicy is the policy that specifies the
-                      conditions for this subscription's expiration. If `expiration_policy`
-                      is not set, a *default policy* with `ttl` of 31 days will be
-                      used. The minimum allowed value for `expiration_policy.ttl`
-                      is 1 day.
+                    description: |-
+                      ExpirationPolicy is the policy that specifies the conditions for this
+                      subscription's expiration. If `expiration_policy` is not set, a
+                      *default policy* with `ttl` of 31 days will be used. The minimum allowed value
+                      for `expiration_policy.ttl` is 1 day.
                     properties:
                       ttl:
-                        description: TTL is the duration of "time-to-live" for an
-                          associated resource. The resource expires if it is not active
-                          for a period of `ttl`.
+                        description: |-
+                          TTL is the duration of "time-to-live" for an associated resource.
+                          The resource expires if it is not active for a period of `ttl`.
                         pattern: ^[0-9]*s$
                         type: string
                     type: object
                   filter:
-                    description: Filter is an expression written in the Pub/Sub filter
-                      language (https://cloud.google.com/pubsub/docs/filtering). If
-                      non-empty, then only `PubsubMessage`s whose `attributes` field
-                      matches the filter are delivered on this subscription. If empty,
-                      then no messages are filtered out.
+                    description: |-
+                      Filter is an expression written in the Pub/Sub filter language
+                      (https://cloud.google.com/pubsub/docs/filtering). If non-empty, then
+                      only `PubsubMessage`s whose `attributes` field matches the filter are
+                      delivered on this subscription. If empty, then no messages are
+                      filtered out.
                     type: string
                   labels:
                     additionalProperties:
@@ -122,31 +134,33 @@ spec:
                     description: Labels are used as additional metadata on Subscription.
                     type: object
                   messageRetentionDuration:
-                    description: MessageRetentionDuration is a parameter which defines
-                      how long to retain unacknowledged messages in the subscription's
-                      backlog, from the moment a message is published. If `retain_acked_messages`
-                      is true, then this also configures the retention of acknowledged
-                      messages, and thus configures how far back in time a `Seek`
-                      can be done. Defaults to 7 days. Cannot be more than 7 days
-                      or less than 10 minutes.
+                    description: |-
+                      MessageRetentionDuration is a parameter which defines how long to retain
+                      unacknowledged messages in the subscription's backlog, from the moment
+                      a message is published. If `retain_acked_messages` is true, then this also
+                      configures the retention of acknowledged messages, and thus
+                      configures how far back in time a `Seek` can be done. Defaults to 7
+                      days. Cannot be more than 7 days or less than 10 minutes.
                     pattern: ^[0-9]*s$
                     type: string
                   pushConfig:
-                    description: PushConfig is a parameter which configures push delivery.
-                      An empty `pushConfig` signifies that the subscriber will pull
-                      and ack messages using API methods.
+                    description: |-
+                      PushConfig is a parameter which configures push delivery. An empty
+                      `pushConfig` signifies that the subscriber will pull and ack messages
+                      using API methods.
                     properties:
                       attributes:
                         additionalProperties:
                           type: string
-                        description: Attributes is the map of endpoint configuration
-                          attributes that can be used to control different aspects
-                          of the message delivery.
+                        description: |-
+                          Attributes is the map of endpoint configuration attributes that can be used to
+                          control different aspects of the message delivery.
                         type: object
                       oidcToken:
-                        description: OidcToken is a set of parameters to attach OIDC
-                          JWT token as an `Authorization` header in the HTTP request
-                          for every pushed message.
+                        description: |-
+                          OidcToken is a set of parameters to attach OIDC JWT
+                          token as an `Authorization` header in the HTTP request for every
+                          pushed message.
                         properties:
                           audience:
                             description: Audience is the "audience" to be used when
@@ -158,47 +172,78 @@ spec:
                             type: string
                         type: object
                       pushEndpoint:
-                        description: PushEndpoint is a URL locating the endpoint to
-                          which messages should be pushed.
+                        description: |-
+                          PushEndpoint is a URL locating the endpoint to which messages should be
+                          pushed.
                         type: string
                     type: object
                   retainAckedMessages:
-                    description: RetainAckedMessages is a message which indicates
-                      whether to retain acknowledged messages. If true, then messages
-                      are not expunged from the subscription's backlog, even if they
-                      are acknowledged, until they fall out of the `message_retention_duration`
-                      window.
+                    description: |-
+                      RetainAckedMessages is a message which indicates whether to retain acknowledged
+                      messages. If true, then messages are not expunged from the
+                      subscription's backlog, even if they are acknowledged, until they
+                      fall out of the `message_retention_duration` window.
                     type: boolean
                   retryPolicy:
-                    description: RetryPolicy is the policy that specifies how Pub/Sub
-                      retries message delivery for this subscription. If not set,
-                      the default retry policy is applied. This generally implies
-                      that messages will be retried as soon as possible for healthy
-                      subscribers.
+                    description: |-
+                      RetryPolicy is the policy that specifies how Pub/Sub retries message
+                      delivery for this subscription. If not set, the default retry policy
+                      is applied. This generally implies that messages will be retried as
+                      soon as possible for healthy subscribers.
                     properties:
                       maximumBackoff:
-                        description: MaximumBackoff is the maximum delay between consecutive
-                          deliveries of a given message. Value should be between 0
-                          and 600 seconds. Defaults to 600 seconds.
+                        description: |-
+                          MaximumBackoff is the maximum delay between consecutive deliveries of a
+                          given message. Value should be between 0 and 600 seconds. Defaults to
+                          600 seconds.
                         type: string
                       minimumBackoff:
-                        description: MinimumBackoff is the minimum delay between consecutive
-                          deliveries of a given message. Value should be between 0
-                          and 600 seconds. Defaults to 10 seconds.
+                        description: |-
+                          MinimumBackoff is the minimum delay between consecutive deliveries of a
+                          given message. Value should be between 0 and 600 seconds. Defaults to
+                          10 seconds.
                         type: string
                     type: object
                   topic:
-                    description: 'TODO: Add referencer & selector for Topic resource.
+                    description: |-
                       Topic is the name of the topic from which this subscription
-                      is receiving messages. Format is `projects/{project}/topics/{topic}`.'
+                      is receiving messages. Format is `projects/{project}/topics/{topic}`.
                     type: string
                 type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
               providerConfigRef:
                 default:
                   name: default
-                description: ProviderConfigReference specifies how the provider that
-                  will be used to create, observe, update, and delete this managed
-                  resource should be configured.
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
                 properties:
                   name:
                     description: Name of the referenced object.
@@ -208,57 +253,21 @@ spec:
                     properties:
                       resolution:
                         default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
                         enum:
                         - Required
                         - Optional
                         type: string
                       resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
-                        enum:
-                        - Always
-                        - IfNotPresent
-                        type: string
-                    type: object
-                required:
-                - name
-                type: object
-              providerRef:
-                description: 'ProviderReference specifies the provider that will be
-                  used to create, observe, update, and delete this managed resource.
-                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
-                properties:
-                  name:
-                    description: Name of the referenced object.
-                    type: string
-                  policy:
-                    description: Policies for referencing.
-                    properties:
-                      resolution:
-                        default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
-                        enum:
-                        - Required
-                        - Optional
-                        type: string
-                      resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
                         enum:
                         - Always
                         - IfNotPresent
@@ -268,17 +277,19 @@ spec:
                 - name
                 type: object
               publishConnectionDetailsTo:
-                description: PublishConnectionDetailsTo specifies the connection secret
-                  config which contains a name, metadata and a reference to secret
-                  store config to which any connection details for this managed resource
-                  should be written. Connection details frequently include the endpoint,
-                  username, and password required to connect to the managed resource.
+                description: |-
+                  PublishConnectionDetailsTo specifies the connection secret config which
+                  contains a name, metadata and a reference to secret store config to
+                  which any connection details for this managed resource should be written.
+                  Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
                 properties:
                   configRef:
                     default:
                       name: default
-                    description: SecretStoreConfigRef specifies which secret store
-                      config should be used for this ConnectionSecret.
+                    description: |-
+                      SecretStoreConfigRef specifies which secret store config should be used
+                      for this ConnectionSecret.
                     properties:
                       name:
                         description: Name of the referenced object.
@@ -288,21 +299,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -317,21 +328,22 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: Annotations are the annotations to be added to
-                          connection secret. - For Kubernetes secrets, this will be
-                          used as "metadata.annotations". - It is up to Secret Store
-                          implementation for others store types.
+                        description: |-
+                          Annotations are the annotations to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.annotations".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: Labels are the labels/tags to be added to connection
-                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
-                          - It is up to Secret Store implementation for others store
-                          types.
+                        description: |-
+                          Labels are the labels/tags to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       type:
-                        description: Type is the SecretType for the connection secret.
+                        description: |-
+                          Type is the SecretType for the connection secret.
                           - Only valid for Kubernetes Secret Stores.
                         type: string
                     type: object
@@ -342,14 +354,15 @@ spec:
                 - name
                 type: object
               writeConnectionSecretToRef:
-                description: WriteConnectionSecretToReference specifies the namespace
-                  and name of a Secret to which any connection details for this managed
-                  resource should be written. Connection details frequently include
-                  the endpoint, username, and password required to connect to the
-                  managed resource. This field is planned to be replaced in a future
-                  release in favor of PublishConnectionDetailsTo. Currently, both
-                  could be set independently and connection details would be published
-                  to both without affecting each other.
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                  This field is planned to be replaced in a future release in favor of
+                  PublishConnectionDetailsTo. Currently, both could be set independently
+                  and connection details would be published to both without affecting
+                  each other.
                 properties:
                   name:
                     description: Name of the secret.
@@ -373,14 +386,23 @@ spec:
                   description: A Condition that may apply to a resource.
                   properties:
                     lastTransitionTime:
-                      description: LastTransitionTime is the last time this condition
-                        transitioned from one status to another.
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
                       format: date-time
                       type: string
                     message:
-                      description: A Message containing details about this condition's
-                        last transition from one status to another, if any.
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
                       type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
                     reason:
                       description: A Reason for this condition's last transition from
                         one status to another.
@@ -390,8 +412,9 @@ spec:
                         False, or Unknown?
                       type: string
                     type:
-                      description: Type of this condition. At most one of each condition
-                        type may apply to a resource at any point in time.
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
                       type: string
                   required:
                   - lastTransitionTime
@@ -400,6 +423,16 @@ spec:
                   - type
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
             type: object
         required:
         - spec

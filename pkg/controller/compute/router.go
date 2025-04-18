@@ -60,14 +60,20 @@ func SetupRouter(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.RouterGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&routerConnector{kube: mgr.GetClient()}),
 		managed.WithReferenceResolver(managed.NewAPISimpleReferenceResolver(mgr.GetClient())),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1alpha1.RouterGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -173,15 +179,20 @@ func (c *routerExternal) Update(ctx context.Context, mg resource.Managed) (manag
 	return managed.ExternalUpdate{}, errors.Wrap(err, errRouterUpdateFailed)
 }
 
-func (c *routerExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *routerExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Router)
 	if !ok {
-		return errors.New(errNotRouter)
+		return managed.ExternalDelete{}, errors.New(errNotRouter)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Routers.Delete(c.projectID, cr.Spec.ForProvider.Region, meta.GetExternalName(cr)).
 		Context(ctx).
 		Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errRouterDeleteFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errRouterDeleteFailed)
+}
+
+func (e *routerExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

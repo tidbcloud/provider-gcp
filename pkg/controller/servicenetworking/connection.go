@@ -84,14 +84,19 @@ func SetupConnection(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, xpconnection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, xpconnection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1beta1.ConnectionGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&connector{client: mgr.GetClient()}),
-		managed.WithConnectionPublishers(),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1beta1.ConnectionGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -191,14 +196,19 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateConnection)
 }
 
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cn, ok := mg.(*v1beta1.Connection)
 	if !ok {
-		return errors.New(errNotConnection)
+		return managed.ExternalDelete{}, errors.New(errNotConnection)
 	}
 
 	cn.Status.SetConditions(xpv1.Deleting())
 	rm := &compute.NetworksRemovePeeringRequest{Name: cn.Status.AtProvider.Peering}
 	_, err := e.compute.Networks.RemovePeering(e.projectID, path.Base(gcp.StringValue(cn.Spec.ForProvider.Network)), rm).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteConnection)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteConnection)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

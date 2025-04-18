@@ -55,13 +55,19 @@ func SetupCryptoKeyPolicy(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.CryptoKeyPolicyGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&cryptoKeyPolicyConnecter{client: mgr.GetClient()}),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1alpha1.CryptoKeyPolicyGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -169,15 +175,20 @@ func (e *cryptoKeyPolicyExternal) Update(ctx context.Context, mg resource.Manage
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *cryptoKeyPolicyExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *cryptoKeyPolicyExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.CryptoKeyPolicy)
 	if !ok {
-		return errors.New(errNotCryptoKeyPolicy)
+		return managed.ExternalDelete{}, errors.New(errNotCryptoKeyPolicy)
 	}
 	req := &kmsv1.SetIamPolicyRequest{Policy: &kmsv1.Policy{}}
 	if _, err := e.cryptokeyspolicy.SetIamPolicy(gcp.StringValue(cr.Spec.ForProvider.CryptoKey), req).
 		Context(ctx).Do(); err != nil {
-		return errors.Wrap(err, errSetPolicy)
+		return managed.ExternalDelete{}, errors.Wrap(err, errSetPolicy)
 	}
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *cryptoKeyPolicyExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }

@@ -62,13 +62,19 @@ func SetupFirewall(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.FirewallGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&firewallConnector{kube: mgr.GetClient()}),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1alpha1.FirewallGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -174,15 +180,20 @@ func (c *firewallExternal) Update(ctx context.Context, mg resource.Managed) (man
 	return managed.ExternalUpdate{}, errors.Wrap(err, errFirewallUpdateFailed)
 }
 
-func (c *firewallExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *firewallExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Firewall)
 	if !ok {
-		return errors.New(errNotFirewall)
+		return managed.ExternalDelete{}, errors.New(errNotFirewall)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Firewalls.Delete(c.projectID, meta.GetExternalName(cr)).
 		Context(ctx).
 		Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errFirewallDeleteFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errFirewallDeleteFailed)
+}
+
+func (e *firewallExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

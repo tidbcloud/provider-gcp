@@ -53,13 +53,19 @@ func SetupBucketPolicyMember(mgr ctrl.Manager, o controller.Options) error {
 		cps = append(cps, connection.NewDetailsManager(mgr.GetClient(), scv1alpha1.StoreConfigGroupVersionKind, connection.WithTLSConfig(o.ESSOptions.TLSConfig)))
 	}
 
-	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.BucketPolicyMemberGroupVersionKind),
+	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnecter(&bucketPolicyMemberConnecter{client: mgr.GetClient()}),
 		managed.WithPollInterval(o.PollInterval),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-		managed.WithConnectionPublishers(cps...))
+		managed.WithConnectionPublishers(cps...),
+	}
+
+	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+		opts = append(opts, managed.WithManagementPolicies())
+	}
+
+	r := managed.NewReconciler(mgr, resource.ManagedKind(v1alpha1.BucketPolicyMemberGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -141,24 +147,29 @@ func (e *bucketPolicyMemberExternal) Update(ctx context.Context, mg resource.Man
 	return managed.ExternalUpdate{}, err
 }
 
-func (e *bucketPolicyMemberExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *bucketPolicyMemberExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.BucketPolicyMember)
 	if !ok {
-		return errors.New(errNotBucketPolicyMember)
+		return managed.ExternalDelete{}, errors.New(errNotBucketPolicyMember)
 	}
 	instance, err := e.bucketpolicy.GetIamPolicy(gcp.StringValue(cr.Spec.ForProvider.Bucket)).OptionsRequestedPolicyVersion(iamv1alpha1.PolicyVersion).Context(ctx).Do()
 	if err != nil {
-		return errors.Wrap(err, errGetPolicy)
+		return managed.ExternalDelete{}, errors.Wrap(err, errGetPolicy)
 	}
 
 	changed := bucketpolicy.UnbindRoleFromMember(cr.Spec.ForProvider, instance)
 	if !changed {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
 	if _, err := e.bucketpolicy.SetIamPolicy(gcp.StringValue(cr.Spec.ForProvider.Bucket), instance).
 		Context(ctx).Do(); err != nil {
-		return errors.Wrap(err, errSetPolicy)
+		return managed.ExternalDelete{}, errors.Wrap(err, errSetPolicy)
 	}
 
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *bucketPolicyMemberExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }
