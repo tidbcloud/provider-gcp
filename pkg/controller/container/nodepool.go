@@ -203,17 +203,22 @@ func (e *nodePoolExternal) Update(ctx context.Context, mg resource.Managed) (man
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateNodePool)
 }
 
-func (e *nodePoolExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *nodePoolExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.NodePool)
 	if !ok {
-		return errors.New(errNotNodePool)
+		return managed.ExternalDelete{}, errors.New(errNotNodePool)
 	}
 	cr.SetConditions(xpv1.Deleting())
 	// Wait until deletion is complete if already stopping.
 	if cr.Status.AtProvider.Status == v1beta1.NodePoolStateStopping {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
 
 	_, err := e.container.Projects.Locations.Clusters.NodePools.Delete(np.GetFullyQualifiedName(cr.Spec.ForProvider, meta.GetExternalName(cr))).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteNodePool)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteNodePool)
+}
+
+func (e *nodePoolExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

@@ -66,7 +66,7 @@ func nodePool(im ...nodePoolModifier) *v1beta1.NodePool {
 		},
 		Spec: v1beta1.NodePoolSpec{
 			ResourceSpec: xpv1.ResourceSpec{
-				ProviderReference: &xpv1.Reference{Name: providerName},
+				ProviderConfigReference: &xpv1.Reference{Name: providerName},
 			},
 			ForProvider: v1beta1.NodePoolParameters{},
 		},

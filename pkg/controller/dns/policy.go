@@ -184,10 +184,10 @@ func (e *policyExternal) Update(ctx context.Context, mg resource.Managed) (manag
 	return managed.ExternalUpdate{}, errors.Wrap(err, errCannotUpdate)
 }
 
-func (e *policyExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *policyExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Policy)
 	if !ok {
-		return errors.New(errNotDNSPolicy)
+		return managed.ExternalDelete{}, errors.New(errNotDNSPolicy)
 	}
 
 	err := e.dns.Delete(
@@ -195,8 +195,13 @@ func (e *policyExternal) Delete(ctx context.Context, mg resource.Managed) error 
 		meta.GetExternalName(cr),
 	).Context(ctx).Do()
 	if gcp.IsErrorNotFound(err) {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
-	return errors.Wrap(err, errCannotDeletePolicy)
+	return managed.ExternalDelete{}, errors.Wrap(err, errCannotDeletePolicy)
 
+}
+
+func (e *policyExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

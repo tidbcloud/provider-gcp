@@ -213,19 +213,24 @@ func (e *clusterExternal) Update(ctx context.Context, mg resource.Managed) (mana
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateCluster)
 }
 
-func (e *clusterExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *clusterExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta2.Cluster)
 	if !ok {
-		return errors.New(errNotCluster)
+		return managed.ExternalDelete{}, errors.New(errNotCluster)
 	}
 	cr.SetConditions(xpv1.Deleting())
 	// Wait until delete is complete if already deleting.
 	if cr.Status.AtProvider.Status == v1beta2.ClusterStateStopping {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
 
 	_, err := e.cluster.Projects.Locations.Clusters.Delete(gke.GetFullyQualifiedName(e.projectID, cr.Spec.ForProvider, meta.GetExternalName(cr))).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteCluster)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteCluster)
+}
+
+func (e *clusterExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }
 
 // connectionSecret return secret object for cluster instance

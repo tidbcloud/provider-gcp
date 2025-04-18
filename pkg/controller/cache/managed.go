@@ -198,13 +198,18 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateInstance)
 }
 
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	i, ok := mg.(*v1beta1.CloudMemorystoreInstance)
 	if !ok {
-		return errors.New(errNotInstance)
+		return managed.ExternalDelete{}, errors.New(errNotInstance)
 	}
 	i.SetConditions(xpv1.Deleting())
 
 	_, err := e.cms.Projects.Locations.Instances.Delete(cloudmemorystore.GetFullyQualifiedName(e.projectID, i.Spec.ForProvider, meta.GetExternalName(i))).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteInstance)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteInstance)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

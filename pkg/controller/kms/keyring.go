@@ -163,10 +163,15 @@ func (e *keyRingExternal) Update(ctx context.Context, mg resource.Managed) (mana
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *keyRingExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *keyRingExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	// It is not possible to delete KMS KeyRings, there is no "delete" method defined:
 	// https://cloud.google.com/kms/docs/reference/rest#rest-resource:-v1.projects.locations.keyrings
 	// Also see related faq: https://cloud.google.com/kms/docs/faq#cannot_delete
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *keyRingExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }
 

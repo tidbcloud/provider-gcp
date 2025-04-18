@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.11.3
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.16.0
   name: routers.compute.gcp.crossplane.io
 spec:
   group: compute.gcp.crossplane.io
@@ -33,14 +32,19 @@ spec:
           Engine Router
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -49,52 +53,62 @@ spec:
             properties:
               deletionPolicy:
                 default: Delete
-                description: 'DeletionPolicy specifies what will happen to the underlying
-                  external when this managed resource is deleted - either "Delete"
-                  or "Orphan" the external resource. This field is planned to be deprecated
-                  in favor of the ManagementPolicy field in a future release. Currently,
-                  both could be set independently and non-default values would be
-                  honored if the feature flag is enabled. See the design doc for more
-                  information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
                 enum:
                 - Orphan
                 - Delete
                 type: string
               forProvider:
-                description: 'RouterParameters define the desired state of a Google
-                  Compute Engine Router. Most fields map directly to a Router: https://cloud.google.com/compute/docs/reference/rest/v1/routers/'
+                description: |-
+                  RouterParameters define the desired state of a Google Compute Engine
+                  Router. Most fields map directly to a Router:
+                  https://cloud.google.com/compute/docs/reference/rest/v1/routers/
                 properties:
                   bgp:
                     description: 'Bgp: BGP information specific to this router.'
                     properties:
                       advertiseMode:
-                        description: "AdvertiseMode: User-specified flag to indicate
-                          which mode to use for advertisement. The options are DEFAULT
-                          or CUSTOM. \n Possible values: \"CUSTOM\" \"DEFAULT\""
+                        description: |-
+                          AdvertiseMode: User-specified flag to indicate which mode to use for
+                          advertisement. The options are DEFAULT or CUSTOM.
+
+                          Possible values:
+                            "CUSTOM"
+                            "DEFAULT"
                         enum:
                         - CUSTOM
                         - DEFAULT
                         type: string
                       advertisedGroups:
-                        description: "AdvertisedGroups: User-specified list of prefix
-                          groups to advertise in custom mode. This field can only
-                          be populated if advertise_mode is CUSTOM and is advertised
-                          to all peers of the router. These groups will be advertised
-                          in addition to any specified prefixes. Leave this field
-                          blank to advertise no custom groups. \n Possible values:
-                          \"ALL_SUBNETS\""
+                        description: |-
+                          AdvertisedGroups: User-specified list of prefix groups to advertise
+                          in custom mode. This field can only be populated if advertise_mode is
+                          CUSTOM and is advertised to all peers of the router. These groups
+                          will be advertised in addition to any specified prefixes. Leave this
+                          field blank to advertise no custom groups.
+
+                          Possible values:
+                            "ALL_SUBNETS"
                         enum:
                         - ALL_SUBNETS
                         items:
                           type: string
                         type: array
                       advertisedIpRanges:
-                        description: 'AdvertisedIpRanges: User-specified list of individual
-                          IP ranges to advertise in custom mode. This field can only
-                          be populated if advertise_mode is CUSTOM and is advertised
-                          to all peers of the router. These IP ranges will be advertised
-                          in addition to any specified groups. Leave this field blank
-                          to advertise no custom IP ranges.'
+                        description: |-
+                          AdvertisedIpRanges: User-specified list of individual IP ranges to
+                          advertise in custom mode. This field can only be populated if
+                          advertise_mode is CUSTOM and is advertised to all peers of the
+                          router. These IP ranges will be advertised in addition to any
+                          specified groups. Leave this field blank to advertise no custom IP
+                          ranges.
                         items:
                           description: A RouterAdvertisedIpRange represents the IP
                             ranges advertised by router.
@@ -104,63 +118,72 @@ spec:
                                 for the IP range.'
                               type: string
                             range:
-                              description: 'Range: The IP range to advertise. The
-                                value must be a CIDR-formatted string.'
+                              description: |-
+                                Range: The IP range to advertise. The value must be a CIDR-formatted
+                                string.
                               type: string
                           required:
                           - range
                           type: object
                         type: array
                       asn:
-                        description: 'Asn: Local BGP Autonomous System Number (ASN).
-                          Must be an RFC6996 private ASN, either 16-bit or 32-bit.
-                          The value will be fixed for this router resource. All VPN
-                          tunnels that link to this router will have the same local
-                          ASN.'
+                        description: |-
+                          Asn: Local BGP Autonomous System Number (ASN). Must be an RFC6996
+                          private ASN, either 16-bit or 32-bit. The value will be fixed for
+                          this router resource. All VPN tunnels that link to this router will
+                          have the same local ASN.
                         format: int64
                         type: integer
                     type: object
                   bgpPeers:
-                    description: 'BgpPeers: BGP information that must be configured
-                      into the routing stack to establish BGP peering. This information
-                      must specify the peer ASN and either the interface name, IP
-                      address, or peer IP address. Please refer to RFC4273.'
+                    description: |-
+                      BgpPeers: BGP information that must be configured into the routing
+                      stack to establish BGP peering. This information must specify the
+                      peer ASN and either the interface name, IP address, or peer IP
+                      address. Please refer to RFC4273.
                     items:
                       description: A RouterBgpPeer represents the BgpPeer configuration
                         for the router.
                       properties:
                         advertiseMode:
-                          description: "AdvertiseMode: User-specified flag to indicate
-                            which mode to use for advertisement. \n Possible values:
-                            \"CUSTOM\" \"DEFAULT\""
+                          description: |-
+                            AdvertiseMode: User-specified flag to indicate which mode to use for
+                            advertisement.
+
+                            Possible values:
+                              "CUSTOM"
+                              "DEFAULT"
                           enum:
                           - CUSTOM
                           - DEFAULT
                           type: string
                         advertisedGroups:
-                          description: "AdvertisedGroups: User-specified list of prefix
-                            groups to advertise in custom mode, which can take one
-                            of the following options: - ALL_SUBNETS: Advertises all
-                            available subnets, including peer VPC subnets. - ALL_VPC_SUBNETS:
-                            Advertises the router's own VPC subnets. Note that this
-                            field can only be populated if advertise_mode is CUSTOM
-                            and overrides the list defined for the router (in the
-                            \"bgp\" message). These groups are advertised in addition
-                            to any specified prefixes. Leave this field blank to advertise
-                            no custom groups. \n Possible values: \"ALL_SUBNETS\""
+                          description: |-
+                            AdvertisedGroups: User-specified list of prefix groups to advertise
+                            in custom mode, which can take one of the following options:
+                            - ALL_SUBNETS: Advertises all available subnets, including peer VPC
+                            subnets.
+                            - ALL_VPC_SUBNETS: Advertises the router's own VPC subnets. Note that
+                            this field can only be populated if advertise_mode is CUSTOM and
+                            overrides the list defined for the router (in the "bgp" message).
+                            These groups are advertised in addition to any specified prefixes.
+                            Leave this field blank to advertise no custom groups.
+
+                            Possible values:
+                              "ALL_SUBNETS"
                           enum:
                           - ALL_SUBNETS
                           items:
                             type: string
                           type: array
                         advertisedIpRanges:
-                          description: 'AdvertisedIpRanges: User-specified list of
-                            individual IP ranges to advertise in custom mode. This
-                            field can only be populated if advertise_mode is CUSTOM
-                            and overrides the list defined for the router (in the
-                            "bgp" message). These IP ranges are advertised in addition
-                            to any specified groups. Leave this field blank to advertise
-                            no custom IP ranges.'
+                          description: |-
+                            AdvertisedIpRanges: User-specified list of individual IP ranges to
+                            advertise in custom mode. This field can only be populated if
+                            advertise_mode is CUSTOM and overrides the list defined for the
+                            router (in the "bgp" message). These IP ranges are advertised in
+                            addition to any specified groups. Leave this field blank to advertise
+                            no custom IP ranges.
                           items:
                             description: A RouterAdvertisedIpRange represents the
                               IP ranges advertised by router.
@@ -170,18 +193,19 @@ spec:
                                   for the IP range.'
                                 type: string
                               range:
-                                description: 'Range: The IP range to advertise. The
-                                  value must be a CIDR-formatted string.'
+                                description: |-
+                                  Range: The IP range to advertise. The value must be a CIDR-formatted
+                                  string.
                                 type: string
                             required:
                             - range
                             type: object
                           type: array
                         advertisedRoutePriority:
-                          description: 'AdvertisedRoutePriority: The priority of routes
-                            advertised to this BGP peer. Where there is more than
-                            one matching route of maximum length, the routes with
-                            the lowest priority value win.'
+                          description: |-
+                            AdvertisedRoutePriority: The priority of routes advertised to this
+                            BGP peer. Where there is more than one matching route of maximum
+                            length, the routes with the lowest priority value win.
                           format: int64
                           type: integer
                         interfaceName:
@@ -189,26 +213,30 @@ spec:
                             peer is associated with.'
                           type: string
                         ipAddress:
-                          description: 'IpAddress: IP address of the interface inside
-                            Google Cloud Platform. Only IPv4 is supported.'
+                          description: |-
+                            IpAddress: IP address of the interface inside Google Cloud Platform.
+                            Only IPv4 is supported.
                           type: string
                         name:
-                          description: 'Name: Name of this BGP peer. The name must
-                            be 1-63 characters long, and comply with RFC1035. Specifically,
-                            the name must be 1-63 characters long and match the regular
-                            expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the
-                            first character must be a lowercase letter, and all following
-                            characters must be a dash, lowercase letter, or digit,
-                            except the last character, which cannot be a dash.'
+                          description: |-
+                            Name: Name of this BGP peer. The name must be 1-63 characters long,
+                            and comply with RFC1035. Specifically, the name must be 1-63
+                            characters long and match the regular expression
+                            `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be
+                            a lowercase letter, and all following characters must be a dash,
+                            lowercase letter, or digit, except the last character, which cannot
+                            be a dash.
                           type: string
                         peerAsn:
-                          description: 'PeerAsn: Peer BGP Autonomous System Number
-                            (ASN). Each BGP interface may use a different value.'
+                          description: |-
+                            PeerAsn: Peer BGP Autonomous System Number (ASN). Each BGP interface
+                            may use a different value.
                           format: int64
                           type: integer
                         peerIpAddress:
-                          description: 'PeerIpAddress: IP address of the BGP interface
-                            outside Google Cloud Platform. Only IPv4 is supported.'
+                          description: |-
+                            PeerIpAddress: IP address of the BGP interface outside Google Cloud
+                            Platform. Only IPv4 is supported.
                           type: string
                       required:
                       - name
@@ -216,53 +244,57 @@ spec:
                       type: object
                     type: array
                   description:
-                    description: 'Description: An optional description of this resource.
-                      Provide this field when you create the resource.'
+                    description: |-
+                      Description: An optional description of this resource. Provide this
+                      field when you create the resource.
                     type: string
                   encryptedInterconnectRouter:
-                    description: 'EncryptedInterconnectRouter: Field to indicate if
-                      a router is dedicated to use with encrypted Interconnect Attachment
-                      (IPsec-encrypted Cloud Interconnect feature). Not currently
-                      available in all Interconnect locations.'
+                    description: |-
+                      EncryptedInterconnectRouter: Field to indicate if a router is
+                      dedicated to use with encrypted Interconnect Attachment
+                      (IPsec-encrypted Cloud Interconnect feature).
+                      Not currently available in all Interconnect locations.
                     type: boolean
                   interfaces:
-                    description: 'Interfaces: Router interfaces. Each interface requires
-                      either one linked resource, (for example, linkedVpnTunnel),
-                      or IP address and IP address range (for example, ipRange), or
-                      both.'
+                    description: |-
+                      Interfaces: Router interfaces. Each interface requires either one
+                      linked resource, (for example, linkedVpnTunnel), or IP address and IP
+                      address range (for example, ipRange), or both.
                     items:
                       description: A RouterInterface represent the Interface information
                         for router.
                       properties:
                         ipRange:
-                          description: 'IpRange: IP address and range of the interface.
-                            The IP range must be in the RFC3927 link-local IP address
-                            space. The value must be a CIDR-formatted string, for
-                            example: 169.254.0.1/30. NOTE: Do not truncate the address
-                            as it represents the IP address of the interface.'
+                          description: |-
+                            IpRange: IP address and range of the interface. The IP range must be
+                            in the RFC3927 link-local IP address space. The value must be a
+                            CIDR-formatted string, for example: 169.254.0.1/30. NOTE: Do not
+                            truncate the address as it represents the IP address of the
+                            interface.
                           type: string
                         linkedInterconnectAttachment:
-                          description: 'LinkedInterconnectAttachment: URI of the linked
-                            Interconnect attachment. It must be in the same region
-                            as the router. Each interface can have one linked resource,
-                            which can be a VPN tunnel, an Interconnect attachment,
-                            or a virtual machine instance.'
+                          description: |-
+                            LinkedInterconnectAttachment: URI of the linked Interconnect
+                            attachment. It must be in the same region as the router. Each
+                            interface can have one linked resource, which can be a VPN tunnel, an
+                            Interconnect attachment, or a virtual machine instance.
                           type: string
                         linkedVpnTunnel:
-                          description: 'LinkedVpnTunnel: URI of the linked VPN tunnel,
-                            which must be in the same region as the router. Each interface
-                            can have one linked resource, which can be a VPN tunnel,
-                            an Interconnect attachment, or a virtual machine instance.'
+                          description: |-
+                            LinkedVpnTunnel: URI of the linked VPN tunnel, which must be in the
+                            same region as the router. Each interface can have one linked
+                            resource, which can be a VPN tunnel, an Interconnect attachment, or a
+                            virtual machine instance.
                           type: string
                         name:
-                          description: 'Name: Name of this interface entry. The name
-                            must be 1-63 characters long, and comply with RFC1035.
-                            Specifically, the name must be 1-63 characters long and
-                            match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-                            which means the first character must be a lowercase letter,
-                            and all following characters must be a dash, lowercase
-                            letter, or digit, except the last character, which cannot
-                            be a dash.'
+                          description: |-
+                            Name: Name of this interface entry. The name must be 1-63 characters
+                            long, and comply with RFC1035. Specifically, the name must be 1-63
+                            characters long and match the regular expression
+                            `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be
+                            a lowercase letter, and all following characters must be a dash,
+                            lowercase letter, or digit, except the last character, which cannot
+                            be a dash.
                           type: string
                       required:
                       - name
@@ -274,36 +306,42 @@ spec:
                       description: RouterNat represents the Nat Service for the router.
                       properties:
                         drainNatIps:
-                          description: 'DrainNatIps: A list of URLs of the IP resources
-                            to be drained. These IPs must be valid static external
-                            IPs that have been assigned to the NAT. These IPs should
-                            be used for updating/patching a NAT only.'
+                          description: |-
+                            DrainNatIps: A list of URLs of the IP resources to be drained. These
+                            IPs must be valid static external IPs that have been assigned to the
+                            NAT. These IPs should be used for updating/patching a NAT only.
                           items:
                             type: string
                           type: array
                         enableEndpointIndependentMapping:
                           type: boolean
                         icmpIdleTimeoutSec:
-                          description: 'IcmpIdleTimeoutSec: Timeout (in seconds) for
-                            ICMP connections. Defaults to 30s if not set.'
+                          description: |-
+                            IcmpIdleTimeoutSec: Timeout (in seconds) for ICMP connections.
+                            Defaults to 30s if not set.
                           format: int64
                           type: integer
                         logConfig:
                           description: 'LogConfig: Configure logging on this NAT.'
                           properties:
                             enable:
-                              description: 'Enable: Indicates whether or not to export
-                                logs. This is false by default.'
+                              description: |-
+                                Enable: Indicates whether or not to export logs. This is false by
+                                default.
                               type: boolean
                             filter:
-                              description: "Filter: Specify the desired filtering
-                                of logs on this NAT. If unspecified, logs are exported
-                                for all connections handled by this NAT. This option
-                                can take one of the following values: - ERRORS_ONLY:
-                                Export logs only for connection failures. - TRANSLATIONS_ONLY:
-                                Export logs only for successful connections. - ALL:
-                                Export logs for all connections, successful and unsuccessful.
-                                \n Possible values: \"ALL\" \"ERRORS_ONLY\" \"TRANSLATIONS_ONLY\""
+                              description: |-
+                                Filter: Specify the desired filtering of logs on this NAT. If
+                                unspecified, logs are exported for all connections handled by this
+                                NAT. This option can take one of the following values:
+                                - ERRORS_ONLY: Export logs only for connection failures.
+                                - TRANSLATIONS_ONLY: Export logs only for successful connections.
+                                - ALL: Export logs for all connections, successful and unsuccessful.
+
+                                Possible values:
+                                  "ALL"
+                                  "ERRORS_ONLY"
+                                  "TRANSLATIONS_ONLY"
                               enum:
                               - ALL
                               - ERRORS_ONLY
@@ -311,61 +349,74 @@ spec:
                               type: string
                           type: object
                         minPortsPerVm:
-                          description: 'MinPortsPerVm: Minimum number of ports allocated
-                            to a VM from this NAT config. If not set, a default number
-                            of ports is allocated to a VM. This is rounded up to the
-                            nearest power of 2. For example, if the value of this
-                            field is 50, at least 64 ports are allocated to a VM.'
+                          description: |-
+                            MinPortsPerVm: Minimum number of ports allocated to a VM from this
+                            NAT config. If not set, a default number of ports is allocated to a
+                            VM. This is rounded up to the nearest power of 2. For example, if the
+                            value of this field is 50, at least 64 ports are allocated to a VM.
                           format: int64
                           type: integer
                         name:
-                          description: 'Name: Unique name of this Nat service. The
-                            name must be 1-63 characters long and comply with RFC1035.'
+                          description: |-
+                            Name: Unique name of this Nat service. The name must be 1-63
+                            characters long and comply with RFC1035.
                           type: string
                         natIpAllocateOption:
-                          description: "NatIpAllocateOption: Specify the NatIpAllocateOption,
-                            which can take one of the following values: - MANUAL_ONLY:
-                            Uses only Nat IP addresses provided by customers. When
-                            there are not enough specified Nat IPs, the Nat service
-                            fails for new VMs. - AUTO_ONLY: Nat IPs are allocated
-                            by Google Cloud Platform; customers can't specify any
-                            Nat IPs. When choosing AUTO_ONLY, then nat_ip should be
-                            empty. \n Possible values: \"AUTO_ONLY\" \"MANUAL_ONLY\""
+                          description: |-
+                            NatIpAllocateOption: Specify the NatIpAllocateOption, which can take
+                            one of the following values:
+                            - MANUAL_ONLY: Uses only Nat IP addresses provided by customers. When
+                            there are not enough specified Nat IPs, the Nat service fails for new
+                            VMs.
+                            - AUTO_ONLY: Nat IPs are allocated by Google Cloud Platform;
+                            customers can't specify any Nat IPs. When choosing AUTO_ONLY, then
+                            nat_ip should be empty.
+
+                            Possible values:
+                              "AUTO_ONLY"
+                              "MANUAL_ONLY"
                           enum:
                           - AUTO_ONLY
                           - MANUAL_ONLY
                           type: string
                         natIps:
-                          description: 'NatIps: A list of URLs of the IP resources
-                            used for this Nat service. These IP addresses must be
-                            valid static external IP addresses assigned to the project.'
+                          description: |-
+                            NatIps: A list of URLs of the IP resources used for this Nat service.
+                            These IP addresses must be valid static external IP addresses
+                            assigned to the project.
                           items:
                             type: string
                           type: array
                         sourceSubnetworkIpRangesToNat:
-                          description: "SourceSubnetworkIpRangesToNat: Specify the
-                            Nat option, which can take one of the following values:
-                            - ALL_SUBNETWORKS_ALL_IP_RANGES: All of the IP ranges
-                            in every Subnetwork are allowed to Nat. - ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES:
-                            All of the primary IP ranges in every Subnetwork are allowed
-                            to Nat. - LIST_OF_SUBNETWORKS: A list of Subnetworks are
-                            allowed to Nat (specified in the field subnetwork below)
-                            The default is SUBNETWORK_IP_RANGE_TO_NAT_OPTION_UNSPECIFIED.
-                            Note that if this field contains ALL_SUBNETWORKS_ALL_IP_RANGES
-                            or ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should
-                            not be any other Router.Nat section in any Router for
-                            this network in this region. \n Possible values: \"ALL_SUBNETWORKS_ALL_IP_RANGES\"
-                            \"ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES\" \"LIST_OF_SUBNETWORKS\""
+                          description: |-
+                            SourceSubnetworkIpRangesToNat: Specify the Nat option, which can take
+                            one of the following values:
+                            - ALL_SUBNETWORKS_ALL_IP_RANGES: All of the IP ranges in every
+                            Subnetwork are allowed to Nat.
+                            - ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES: All of the primary IP ranges
+                            in every Subnetwork are allowed to Nat.
+                            - LIST_OF_SUBNETWORKS: A list of Subnetworks are allowed to Nat
+                            (specified in the field subnetwork below) The default is
+                            SUBNETWORK_IP_RANGE_TO_NAT_OPTION_UNSPECIFIED. Note that if this
+                            field contains ALL_SUBNETWORKS_ALL_IP_RANGES or
+                            ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
+                            other Router.Nat section in any Router for this network in this
+                            region.
+
+                            Possible values:
+                              "ALL_SUBNETWORKS_ALL_IP_RANGES"
+                              "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES"
+                              "LIST_OF_SUBNETWORKS"
                           enum:
                           - ALL_SUBNETWORKS_ALL_IP_RANGES
                           - ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES
                           - LIST_OF_SUBNETWORKS
                           type: string
                         subnetworks:
-                          description: 'Subnetworks: A list of Subnetwork resources
-                            whose traffic should be translated by NAT Gateway. It
-                            is used only when LIST_OF_SUBNETWORKS is selected for
-                            the SubnetworkIpRangeToNatOption above.'
+                          description: |-
+                            Subnetworks: A list of Subnetwork resources whose traffic should be
+                            translated by NAT Gateway. It is used only when LIST_OF_SUBNETWORKS
+                            is selected for the SubnetworkIpRangeToNatOption above.
                           items:
                             description: A RouterNatSubnetworkToNat represent the
                               Subnetwork information for Router Nat Service.
@@ -375,21 +426,26 @@ spec:
                                   that will use NAT.'
                                 type: string
                               secondaryIpRangeNames:
-                                description: 'SecondaryIpRangeNames: A list of the
-                                  secondary ranges of the Subnetwork that are allowed
-                                  to use NAT. This can be populated only if "LIST_OF_SECONDARY_IP_RANGES"
-                                  is one of the values in source_ip_ranges_to_nat.'
+                                description: |-
+                                  SecondaryIpRangeNames: A list of the secondary ranges of the
+                                  Subnetwork that are allowed to use NAT. This can be populated only if
+                                  "LIST_OF_SECONDARY_IP_RANGES" is one of the values in
+                                  source_ip_ranges_to_nat.
                                 items:
                                   type: string
                                 type: array
                               sourceIpRangesToNat:
-                                description: "SourceIpRangesToNat: Specify the options
-                                  for NAT ranges in the Subnetwork. All options of
-                                  a single value are valid except NAT_IP_RANGE_OPTION_UNSPECIFIED.
-                                  The only valid option with multiple values is: [\"PRIMARY_IP_RANGE\",
-                                  \"LIST_OF_SECONDARY_IP_RANGES\"] Default: [ALL_IP_RANGES]
-                                  \n Possible values: \"ALL_IP_RANGES\" \"LIST_OF_SECONDARY_IP_RANGES\"
-                                  \"PRIMARY_IP_RANGE\""
+                                description: |-
+                                  SourceIpRangesToNat: Specify the options for NAT ranges in the
+                                  Subnetwork. All options of a single value are valid except
+                                  NAT_IP_RANGE_OPTION_UNSPECIFIED. The only valid option with multiple
+                                  values is: ["PRIMARY_IP_RANGE", "LIST_OF_SECONDARY_IP_RANGES"]
+                                  Default: [ALL_IP_RANGES]
+
+                                  Possible values:
+                                    "ALL_IP_RANGES"
+                                    "LIST_OF_SECONDARY_IP_RANGES"
+                                    "PRIMARY_IP_RANGE"
                                 enum:
                                 - ALL_IP_RANGES
                                 - LIST_OF_SECONDARY_IP_RANGES
@@ -400,20 +456,21 @@ spec:
                             type: object
                           type: array
                         tcpEstablishedIdleTimeoutSec:
-                          description: 'TcpEstablishedIdleTimeoutSec: Timeout (in
-                            seconds) for TCP established connections. Defaults to
-                            1200s if not set.'
+                          description: |-
+                            TcpEstablishedIdleTimeoutSec: Timeout (in seconds) for TCP
+                            established connections. Defaults to 1200s if not set.
                           format: int64
                           type: integer
                         tcpTransitoryIdleTimeoutSec:
-                          description: 'TcpTransitoryIdleTimeoutSec: Timeout (in seconds)
-                            for TCP transitory connections. Defaults to 30s if not
-                            set.'
+                          description: |-
+                            TcpTransitoryIdleTimeoutSec: Timeout (in seconds) for TCP transitory
+                            connections. Defaults to 30s if not set.
                           format: int64
                           type: integer
                         udpIdleTimeoutSec:
-                          description: 'UdpIdleTimeoutSec: Timeout (in seconds) for
-                            UDP connections. Defaults to 30s if not set.'
+                          description: |-
+                            UdpIdleTimeoutSec: Timeout (in seconds) for UDP connections. Defaults
+                            to 30s if not set.
                           format: int64
                           type: integer
                       required:
@@ -436,21 +493,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -463,8 +520,9 @@ spec:
                     description: NetworkSelector selects a reference to a Network
                     properties:
                       matchControllerRef:
-                        description: MatchControllerRef ensures an object with the
-                          same controller reference as the selecting object is selected.
+                        description: |-
+                          MatchControllerRef ensures an object with the same controller reference
+                          as the selecting object is selected.
                         type: boolean
                       matchLabels:
                         additionalProperties:
@@ -477,21 +535,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -499,33 +557,47 @@ spec:
                         type: object
                     type: object
                   region:
-                    description: 'Region: URL of the region where the Subnetwork resides.
-                      This field can be set only at resource creation time.'
+                    description: |-
+                      Region: URL of the region where the Subnetwork resides. This field
+                      can be set only at resource creation time.
                     type: string
                 required:
                 - region
                 type: object
-              managementPolicy:
-                default: FullControl
-                description: 'THIS IS AN ALPHA FIELD. Do not use it in production.
-                  It is not honored unless the relevant Crossplane feature flag is
-                  enabled, and may be changed or removed without notice. ManagementPolicy
-                  specifies the level of control Crossplane has over the managed external
-                  resource. This field is planned to replace the DeletionPolicy field
-                  in a future release. Currently, both could be set independently
-                  and non-default values would be honored if the feature flag is enabled.
-                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
-                enum:
-                - FullControl
-                - ObserveOnly
-                - OrphanOnDelete
-                type: string
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
               providerConfigRef:
                 default:
                   name: default
-                description: ProviderConfigReference specifies how the provider that
-                  will be used to create, observe, update, and delete this managed
-                  resource should be configured.
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
                 properties:
                   name:
                     description: Name of the referenced object.
@@ -535,57 +607,21 @@ spec:
                     properties:
                       resolution:
                         default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
                         enum:
                         - Required
                         - Optional
                         type: string
                       resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
-                        enum:
-                        - Always
-                        - IfNotPresent
-                        type: string
-                    type: object
-                required:
-                - name
-                type: object
-              providerRef:
-                description: 'ProviderReference specifies the provider that will be
-                  used to create, observe, update, and delete this managed resource.
-                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
-                properties:
-                  name:
-                    description: Name of the referenced object.
-                    type: string
-                  policy:
-                    description: Policies for referencing.
-                    properties:
-                      resolution:
-                        default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
-                        enum:
-                        - Required
-                        - Optional
-                        type: string
-                      resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
                         enum:
                         - Always
                         - IfNotPresent
@@ -595,17 +631,19 @@ spec:
                 - name
                 type: object
               publishConnectionDetailsTo:
-                description: PublishConnectionDetailsTo specifies the connection secret
-                  config which contains a name, metadata and a reference to secret
-                  store config to which any connection details for this managed resource
-                  should be written. Connection details frequently include the endpoint,
-                  username, and password required to connect to the managed resource.
+                description: |-
+                  PublishConnectionDetailsTo specifies the connection secret config which
+                  contains a name, metadata and a reference to secret store config to
+                  which any connection details for this managed resource should be written.
+                  Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
                 properties:
                   configRef:
                     default:
                       name: default
-                    description: SecretStoreConfigRef specifies which secret store
-                      config should be used for this ConnectionSecret.
+                    description: |-
+                      SecretStoreConfigRef specifies which secret store config should be used
+                      for this ConnectionSecret.
                     properties:
                       name:
                         description: Name of the referenced object.
@@ -615,21 +653,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -644,21 +682,22 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: Annotations are the annotations to be added to
-                          connection secret. - For Kubernetes secrets, this will be
-                          used as "metadata.annotations". - It is up to Secret Store
-                          implementation for others store types.
+                        description: |-
+                          Annotations are the annotations to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.annotations".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: Labels are the labels/tags to be added to connection
-                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
-                          - It is up to Secret Store implementation for others store
-                          types.
+                        description: |-
+                          Labels are the labels/tags to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       type:
-                        description: Type is the SecretType for the connection secret.
+                        description: |-
+                          Type is the SecretType for the connection secret.
                           - Only valid for Kubernetes Secret Stores.
                         type: string
                     type: object
@@ -669,14 +708,15 @@ spec:
                 - name
                 type: object
               writeConnectionSecretToRef:
-                description: WriteConnectionSecretToReference specifies the namespace
-                  and name of a Secret to which any connection details for this managed
-                  resource should be written. Connection details frequently include
-                  the endpoint, username, and password required to connect to the
-                  managed resource. This field is planned to be replaced in a future
-                  release in favor of PublishConnectionDetailsTo. Currently, both
-                  could be set independently and connection details would be published
-                  to both without affecting each other.
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                  This field is planned to be replaced in a future release in favor of
+                  PublishConnectionDetailsTo. Currently, both could be set independently
+                  and connection details would be published to both without affecting
+                  each other.
                 properties:
                   name:
                     description: Name of the secret.
@@ -695,16 +735,19 @@ spec:
             description: A RouterStatus represents the observed state of a Router.
             properties:
               atProvider:
-                description: A RouterObservation represents the observed state of
-                  a Google Compute Engine Router.
+                description: |-
+                  A RouterObservation represents the observed state of a Google Compute Engine
+                  Router.
                 properties:
                   creationTimestamp:
-                    description: 'CreationTimestamp: Creation timestamp in RFC3339
-                      text format.'
+                    description: |-
+                      CreationTimestamp: Creation timestamp in RFC3339 text
+                      format.
                     type: string
                   id:
-                    description: 'Id: The unique identifier for the resource. This
-                      identifier is defined by the server.'
+                    description: |-
+                      Id: The unique identifier for the resource. This
+                      identifier is defined by the server.
                     format: int64
                     type: integer
                   selfLink:
@@ -717,14 +760,23 @@ spec:
                   description: A Condition that may apply to a resource.
                   properties:
                     lastTransitionTime:
-                      description: LastTransitionTime is the last time this condition
-                        transitioned from one status to another.
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
                       format: date-time
                       type: string
                     message:
-                      description: A Message containing details about this condition's
-                        last transition from one status to another, if any.
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
                       type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
                     reason:
                       description: A Reason for this condition's last transition from
                         one status to another.
@@ -734,8 +786,9 @@ spec:
                         False, or Unknown?
                       type: string
                     type:
-                      description: Type of this condition. At most one of each condition
-                        type may apply to a resource at any point in time.
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
                       type: string
                   required:
                   - lastTransitionTime
@@ -744,6 +797,16 @@ spec:
                   - type
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
             type: object
         required:
         - spec

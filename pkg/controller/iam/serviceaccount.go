@@ -180,19 +180,24 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 // https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.ServiceAccount)
 	if !ok {
-		return errors.New(errNotServiceAccount)
+		return managed.ExternalDelete{}, errors.New(errNotServiceAccount)
 	}
 
 	req := e.serviceAccounts.Delete(e.rrn.ResourceName(cr))
 	_, err := req.Context(ctx).Do()
 
 	if gcp.IsErrorNotFound(err) {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
-	return errors.Wrap(err, errDelete)
+	return managed.ExternalDelete{}, errors.Wrap(err, errDelete)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }
 
 // isUpToDate returns true if the supplied Kubernetes resource does not differ

@@ -30,7 +30,6 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -39,7 +38,6 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
 	cmpv1beta1 "github.com/crossplane-contrib/provider-gcp/apis/compute/v1beta1"
-	"github.com/crossplane-contrib/provider-gcp/apis/v1alpha3"
 	"github.com/crossplane-contrib/provider-gcp/apis/v1beta1"
 )
 
@@ -52,31 +50,9 @@ func GetConnectionInfo(ctx context.Context, c client.Client, mg resource.Managed
 	switch {
 	case mg.GetProviderConfigReference() != nil:
 		return UseProviderConfig(ctx, c, mg)
-	case mg.GetProviderReference() != nil:
-		return UseProvider(ctx, c, mg)
 	default:
 		return "", nil, errors.New("neither providerConfigRef nor providerRef is given")
 	}
-}
-
-// UseProvider to return GCP authentication information.
-// Deprecated: Use UseProviderConfig
-func UseProvider(ctx context.Context, c client.Client, mg resource.Managed) (projectID string, opts []option.ClientOption, err error) {
-	opts = make([]option.ClientOption, 0)
-
-	p := &v1alpha3.Provider{}
-	if err := c.Get(ctx, types.NamespacedName{Name: mg.GetProviderReference().Name}, p); err != nil {
-		return "", nil, err
-	}
-
-	ref := p.Spec.CredentialsSecretRef
-	s := &v1.Secret{}
-	if err := c.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: ref.Namespace}, s); err != nil {
-		return "", nil, err
-	}
-
-	opts = append(opts, option.WithCredentialsJSON(s.Data[ref.Key]))
-	return p.Spec.ProjectID, opts, nil
 }
 
 // UseProviderConfig to return GCP authentication information.

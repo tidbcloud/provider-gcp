@@ -175,15 +175,20 @@ func (e *serviceAccountPolicyExternal) Update(ctx context.Context, mg resource.M
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *serviceAccountPolicyExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *serviceAccountPolicyExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.ServiceAccountPolicy)
 	if !ok {
-		return errors.New(errNotServiceAccountPolicy)
+		return managed.ExternalDelete{}, errors.New(errNotServiceAccountPolicy)
 	}
 	req := &iamv1.SetIamPolicyRequest{Policy: &iamv1.Policy{}}
 	if _, err := e.serviceaccountspolicy.SetIamPolicy(gcp.StringValue(cr.Spec.ForProvider.ServiceAccount), req).
 		Context(ctx).Do(); err != nil {
-		return errors.Wrap(err, errSetPolicy)
+		return managed.ExternalDelete{}, errors.Wrap(err, errSetPolicy)
 	}
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *serviceAccountPolicyExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }

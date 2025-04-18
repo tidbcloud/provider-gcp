@@ -196,14 +196,19 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateConnection)
 }
 
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cn, ok := mg.(*v1beta1.Connection)
 	if !ok {
-		return errors.New(errNotConnection)
+		return managed.ExternalDelete{}, errors.New(errNotConnection)
 	}
 
 	cn.Status.SetConditions(xpv1.Deleting())
 	rm := &compute.NetworksRemovePeeringRequest{Name: cn.Status.AtProvider.Peering}
 	_, err := e.compute.Networks.RemovePeering(e.projectID, path.Base(gcp.StringValue(cn.Spec.ForProvider.Network)), rm).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteConnection)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteConnection)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

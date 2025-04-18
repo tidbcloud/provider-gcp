@@ -190,15 +190,20 @@ func (c *networkExternal) Update(ctx context.Context, mg resource.Managed) (mana
 	return managed.ExternalUpdate{}, errors.Wrap(err, errNetworkUpdateFailed)
 }
 
-func (c *networkExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *networkExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.Network)
 	if !ok {
-		return errors.New(errNotNetwork)
+		return managed.ExternalDelete{}, errors.New(errNotNetwork)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Networks.Delete(c.projectID, meta.GetExternalName(cr)).
 		Context(ctx).
 		Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errNetworkDeleteFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errNetworkDeleteFailed)
+}
+
+func (e *networkExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

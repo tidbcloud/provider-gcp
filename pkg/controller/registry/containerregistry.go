@@ -188,7 +188,12 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 
 // Delete function is skipped because, deleting the created Bucket can cause data loss.
 // The main aim is that prevent data loss in case this Bucket was used for other purposes.
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }
 

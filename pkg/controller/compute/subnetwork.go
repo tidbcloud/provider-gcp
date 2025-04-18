@@ -184,13 +184,18 @@ func (c *subnetworkExternal) Update(ctx context.Context, mg resource.Managed) (m
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateSubnetworkFailed)
 }
 
-func (c *subnetworkExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *subnetworkExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.Subnetwork)
 	if !ok {
-		return errors.New(errNotSubnetwork)
+		return managed.ExternalDelete{}, errors.New(errNotSubnetwork)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Subnetworks.Delete(c.projectID, cr.Spec.ForProvider.Region, meta.GetExternalName(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubnetworkFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubnetworkFailed)
+}
+
+func (e *subnetworkExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

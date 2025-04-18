@@ -198,7 +198,8 @@ func (s *serviceAccountKeyExternalClient) Create(ctx context.Context, mg resourc
 
 	meta.SetExternalName(cr, keyID) // set external name to key id parsing it from Google Cloud API relative resource name
 
-	return managed.ExternalCreation{ExternalNameAssigned: true, ConnectionDetails: connDetails}, nil
+	// https://github.com/crossplane-contrib/provider-aws/pull/855#discussion_r721383762
+	return managed.ExternalCreation{ConnectionDetails: connDetails}, nil
 }
 
 func (s *serviceAccountKeyExternalClient) Update(_ context.Context, _ resource.Managed) (managed.ExternalUpdate, error) {
@@ -207,14 +208,19 @@ func (s *serviceAccountKeyExternalClient) Update(_ context.Context, _ resource.M
 	return managed.ExternalUpdate{}, nil
 }
 
-func (s *serviceAccountKeyExternalClient) Delete(ctx context.Context, mg resource.Managed) error {
+func (s *serviceAccountKeyExternalClient) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.ServiceAccountKey)
 	if !ok {
-		return errors.New(errNotServiceAccountKey)
+		return managed.ExternalDelete{}, errors.New(errNotServiceAccountKey)
 	}
 
 	_, err := s.serviceAccountKeyClient.Delete(resourcePath(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteServiceAccountKey)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteServiceAccountKey)
+}
+
+func (e *serviceAccountKeyExternalClient) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }
 
 // resourcePath yields the Google Cloud API relative resource name for the ServiceAccountKey resource

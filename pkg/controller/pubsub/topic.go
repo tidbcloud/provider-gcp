@@ -159,11 +159,16 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 // Delete initiates an deletion of the external resource.
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Topic)
 	if !ok {
-		return errors.New(errNotTopic)
+		return managed.ExternalDelete{}, errors.New(errNotTopic)
 	}
 	_, err := e.ps.Projects.Topics.Delete(topic.GetFullyQualifiedName(e.projectID, meta.GetExternalName(cr))).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteTopic)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteTopic)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

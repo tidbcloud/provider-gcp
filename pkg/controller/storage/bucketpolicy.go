@@ -172,14 +172,19 @@ func (e *bucketPolicyExternal) Update(ctx context.Context, mg resource.Managed) 
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *bucketPolicyExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *bucketPolicyExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.BucketPolicy)
 	if !ok {
-		return errors.New(errNotBucketPolicy)
+		return managed.ExternalDelete{}, errors.New(errNotBucketPolicy)
 	}
 	if _, err := e.bucketpolicy.SetIamPolicy(gcp.StringValue(cr.Spec.ForProvider.Bucket), &storage.Policy{}).
 		Context(ctx).Do(); err != nil {
-		return errors.Wrap(err, errSetPolicy)
+		return managed.ExternalDelete{}, errors.Wrap(err, errSetPolicy)
 	}
+	return managed.ExternalDelete{}, nil
+}
+
+func (e *bucketPolicyExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
 	return nil
 }

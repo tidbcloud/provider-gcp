@@ -180,15 +180,20 @@ func (c *firewallExternal) Update(ctx context.Context, mg resource.Managed) (man
 	return managed.ExternalUpdate{}, errors.Wrap(err, errFirewallUpdateFailed)
 }
 
-func (c *firewallExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *firewallExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Firewall)
 	if !ok {
-		return errors.New(errNotFirewall)
+		return managed.ExternalDelete{}, errors.New(errNotFirewall)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := c.Firewalls.Delete(c.projectID, meta.GetExternalName(cr)).
 		Context(ctx).
 		Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errFirewallDeleteFailed)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errFirewallDeleteFailed)
+}
+
+func (e *firewallExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

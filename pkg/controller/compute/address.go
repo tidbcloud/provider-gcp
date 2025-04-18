@@ -150,12 +150,17 @@ func (e *addressExternal) Update(_ context.Context, _ resource.Managed) (managed
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *addressExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *addressExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.Address)
 	if !ok {
-		return errors.New(errNotAddress)
+		return managed.ExternalDelete{}, errors.New(errNotAddress)
 	}
 
 	_, err := e.Addresses.Delete(e.projectID, cr.Spec.ForProvider.Region, meta.GetExternalName(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteAddress)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteAddress)
+}
+
+func (e *addressExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

@@ -168,14 +168,18 @@ func (e *subscriptionExternal) Update(ctx context.Context, mg resource.Managed) 
 }
 
 // Delete initiates an deletion of the external resource.
-func (e *subscriptionExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *subscriptionExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.Subscription)
 	if !ok {
-		return errors.New(errNotSubscription)
+		return managed.ExternalDelete{}, errors.New(errNotSubscription)
 	}
 
 	_, err := e.ps.Projects.Subscriptions.Delete(subscription.GetFullyQualifiedName(e.projectID,
 		meta.GetExternalName(cr))).Context(ctx).Do()
 
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubscription)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteSubscription)
+}
+func (e *subscriptionExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

@@ -154,13 +154,18 @@ func (e *gaExternal) Update(_ context.Context, _ resource.Managed) (managed.Exte
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *gaExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *gaExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.GlobalAddress)
 	if !ok {
-		return errors.New(errNotGlobalAddress)
+		return managed.ExternalDelete{}, errors.New(errNotGlobalAddress)
 	}
 
 	cr.Status.SetConditions(xpv1.Deleting())
 	_, err := e.GlobalAddresses.Delete(e.projectID, meta.GetExternalName(cr)).Context(ctx).Do()
-	return errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteGlobalAddress)
+	return managed.ExternalDelete{}, errors.Wrap(resource.Ignore(gcp.IsErrorNotFound, err), errDeleteGlobalAddress)
+}
+
+func (e *gaExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

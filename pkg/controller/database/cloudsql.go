@@ -195,17 +195,22 @@ func (c *cloudsqlExternal) Update(ctx context.Context, mg resource.Managed) (man
 	return managed.ExternalUpdate{}, errors.Wrap(err, errUpdateFailed)
 }
 
-func (c *cloudsqlExternal) Delete(ctx context.Context, mg resource.Managed) error {
+func (c *cloudsqlExternal) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1beta1.CloudSQLInstance)
 	if !ok {
-		return errors.New(errNotCloudSQL)
+		return managed.ExternalDelete{}, errors.New(errNotCloudSQL)
 	}
 	cr.SetConditions(xpv1.Deleting())
 	_, err := c.db.Delete(c.projectID, meta.GetExternalName(cr)).Context(ctx).Do()
 	if gcp.IsErrorNotFound(err) {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
-	return errors.Wrap(err, errDeleteFailed)
+	return managed.ExternalDelete{}, errors.Wrap(err, errDeleteFailed)
+}
+
+func (e *cloudsqlExternal) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }
 
 func getConnectionDetails(cr *v1beta1.CloudSQLInstance, instance *sqladmin.DatabaseInstance) managed.ConnectionDetails {

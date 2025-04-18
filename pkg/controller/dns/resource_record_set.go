@@ -197,10 +197,10 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	return managed.ExternalUpdate{}, nil
 }
 
-func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
 	cr, ok := mg.(*v1alpha1.ResourceRecordSet)
 	if !ok {
-		return errors.New(errNotResourceRecordSet)
+		return managed.ExternalDelete{}, errors.New(errNotResourceRecordSet)
 	}
 
 	_, err := e.dns.Delete(
@@ -210,7 +210,12 @@ func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
 		cr.Spec.ForProvider.Type,
 	).Context(ctx).Do()
 	if gcp.IsErrorNotFound(err) {
-		return nil
+		return managed.ExternalDelete{}, nil
 	}
-	return errors.Wrap(err, errCannotDelete)
+	return managed.ExternalDelete{}, errors.Wrap(err, errCannotDelete)
+}
+
+func (e *external) Disconnect(ctx context.Context) error {
+	// Unimplemented, required by newer versions of crossplane-runtime
+	return nil
 }

@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.11.3
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.16.0
   name: firewalls.compute.gcp.crossplane.io
 spec:
   group: compute.gcp.crossplane.io
@@ -33,14 +32,19 @@ spec:
           Engine Firewall
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -49,44 +53,48 @@ spec:
             properties:
               deletionPolicy:
                 default: Delete
-                description: 'DeletionPolicy specifies what will happen to the underlying
-                  external when this managed resource is deleted - either "Delete"
-                  or "Orphan" the external resource. This field is planned to be deprecated
-                  in favor of the ManagementPolicy field in a future release. Currently,
-                  both could be set independently and non-default values would be
-                  honored if the feature flag is enabled. See the design doc for more
-                  information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
                 enum:
                 - Orphan
                 - Delete
                 type: string
               forProvider:
-                description: 'FirewallParameters define the desired state of a Google
-                  Compute Engine Firewall rule. Most fields map directly to a Firewall:
-                  https://cloud.google.com/compute/docs/reference/rest/v1/firewalls/'
+                description: |-
+                  FirewallParameters define the desired state of a Google Compute Engine
+                  Firewall rule. Most fields map directly to a Firewall:
+                  https://cloud.google.com/compute/docs/reference/rest/v1/firewalls/
                 properties:
                   allowed:
-                    description: 'Allowed: The list of ALLOW rules specified by this
-                      firewall. Each rule specifies a protocol and port-range tuple
-                      that describes a permitted connection.'
+                    description: |-
+                      Allowed: The list of ALLOW rules specified by this firewall. Each
+                      rule specifies a protocol and port-range tuple that describes a
+                      permitted connection.
                     items:
                       description: FirewallAllowed represents the ALLOW rule by the
                         firewall
                       properties:
                         IPProtocol:
-                          description: 'IPProtocol: The IP protocol to which this
-                            rule applies. The protocol type is required when creating
-                            a firewall rule. This value can either be one of the following
-                            well known protocol strings (tcp, udp, icmp, esp, ah,
-                            ipip, sctp) or the IP protocol number.'
+                          description: |-
+                            IPProtocol: The IP protocol to which this rule applies. The protocol
+                            type is required when creating a firewall rule. This value can either
+                            be one of the following well known protocol strings (tcp, udp, icmp,
+                            esp, ah, ipip, sctp) or the IP protocol number.
                           type: string
                         ports:
-                          description: "Ports: An optional list of ports to which
-                            this rule applies. This field is only applicable for the
-                            UDP or TCP protocol. Each entry must be either an integer
-                            or a range. If not specified, this rule applies to connections
-                            through any port. \n Example inputs include: [\"22\"],
-                            [\"80\",\"443\"], and [\"12345-12349\"]."
+                          description: |-
+                            Ports: An optional list of ports to which this rule applies. This
+                            field is only applicable for the UDP or TCP protocol. Each entry must
+                            be either an integer or a range. If not specified, this rule applies
+                            to connections through any port.
+
+                            Example inputs include: ["22"], ["80","443"], and ["12345-12349"].
                           items:
                             type: string
                           type: array
@@ -95,27 +103,29 @@ spec:
                       type: object
                     type: array
                   denied:
-                    description: 'Denied: The list of DENY rules specified by this
-                      firewall. Each rule specifies a protocol and port-range tuple
-                      that describes a denied connection.'
+                    description: |-
+                      Denied: The list of DENY rules specified by this firewall. Each rule
+                      specifies a protocol and port-range tuple that describes a denied
+                      connection.
                     items:
                       description: FirewallDenied represents the DENY rule by the
                         firewall
                       properties:
                         IPProtocol:
-                          description: 'IPProtocol: The IP protocol to which this
-                            rule applies. The protocol type is required when creating
-                            a firewall rule. This value can either be one of the following
-                            well known protocol strings (tcp, udp, icmp, esp, ah,
-                            ipip, sctp) or the IP protocol number.'
+                          description: |-
+                            IPProtocol: The IP protocol to which this rule applies. The protocol
+                            type is required when creating a firewall rule. This value can either
+                            be one of the following well known protocol strings (tcp, udp, icmp,
+                            esp, ah, ipip, sctp) or the IP protocol number.
                           type: string
                         ports:
-                          description: "Ports: An optional list of ports to which
-                            this rule applies. This field is only applicable for the
-                            UDP or TCP protocol. Each entry must be either an integer
-                            or a range. If not specified, this rule applies to connections
-                            through any port. \n Example inputs include: [\"22\"],
-                            [\"80\",\"443\"], and [\"12345-12349\"]."
+                          description: |-
+                            Ports: An optional list of ports to which this rule applies. This
+                            field is only applicable for the UDP or TCP protocol. Each entry must
+                            be either an integer or a range. If not specified, this rule applies
+                            to connections through any port.
+
+                            Example inputs include: ["22"], ["80","443"], and ["12345-12349"].
                           items:
                             type: string
                           type: array
@@ -124,49 +134,65 @@ spec:
                       type: object
                     type: array
                   description:
-                    description: 'Description: An optional description of this resource.
-                      Provide this field when you create the resource.'
+                    description: |-
+                      Description: An optional description of this resource. Provide this
+                      field when you create the resource.
                     type: string
                   destinationRanges:
-                    description: 'DestinationRanges: If destination ranges are specified,
-                      the firewall rule applies only to traffic that has destination
-                      IP address in these ranges. These ranges must be expressed in
-                      CIDR format. Only IPv4 is supported.'
+                    description: |-
+                      DestinationRanges: If destination ranges are specified, the firewall
+                      rule applies only to traffic that has destination IP address in these
+                      ranges. These ranges must be expressed in CIDR format. Only IPv4 is
+                      supported.
                     items:
                       type: string
                     type: array
                   direction:
-                    description: "Direction: Direction of traffic to which this firewall
-                      applies, either `INGRESS` or `EGRESS`. The default is `INGRESS`.
-                      For `INGRESS` traffic, you cannot specify the destinationRanges
-                      field, and for `EGRESS` traffic, you cannot specify the sourceRanges
-                      or sourceTags fields. \n Possible values: \"EGRESS\" \"INGRESS\""
+                    description: |-
+                      Direction: Direction of traffic to which this firewall applies,
+                      either `INGRESS` or `EGRESS`. The default is `INGRESS`. For `INGRESS`
+                      traffic, you cannot specify the destinationRanges field, and for
+                      `EGRESS` traffic, you cannot specify the sourceRanges or sourceTags
+                      fields.
+
+                      Possible values:
+                        "EGRESS"
+                        "INGRESS"
                     type: string
                   disabled:
-                    description: 'Disabled: Denotes whether the firewall rule is disabled.
-                      When set to true, the firewall rule is not enforced and the
-                      network behaves as if it did not exist. If this is unspecified,
-                      the firewall rule will be enabled.'
+                    description: |-
+                      Disabled: Denotes whether the firewall rule is disabled. When set to
+                      true, the firewall rule is not enforced and the network behaves as if
+                      it did not exist. If this is unspecified, the firewall rule will be
+                      enabled.
                     type: boolean
                   logConfig:
-                    description: 'LogConfig: This field denotes the logging options
-                      for a particular firewall rule. If logging is enabled, logs
-                      will be exported to Stackdriver.'
+                    description: |-
+                      LogConfig: This field denotes the logging options for a particular
+                      firewall rule. If logging is enabled, logs will be exported to
+                      Stackdriver.
                     properties:
                       enable:
-                        description: 'Enable: This field denotes whether to enable
-                          logging for a particular firewall rule.'
+                        description: |-
+                          Enable: This field denotes whether to enable logging for a particular
+                          firewall rule.
                         type: boolean
                     required:
                     - enable
                     type: object
                   network:
-                    description: "Network: URL of the network resource for this firewall
-                      rule. If not specified when creating a firewall rule, the default
-                      network is used: global/networks/default If you choose to specify
-                      this field, you can specify the network as a full or partial
-                      URL. For example, the following are all valid URLs: \n - https://www.googleapis.com/compute/v1/projects/myproject/global/networks/my-network
-                      - projects/myproject/global/networks/my-network - global/networks/default"
+                    description: |-
+                      Network: URL of the network resource for this firewall rule. If not
+                      specified when creating a firewall rule, the default network is
+                      used:
+                      global/networks/default
+                      If you choose to specify this field, you can specify the network as a
+                      full or partial URL. For example, the following are all valid URLs:
+
+                      -
+                      https://www.googleapis.com/compute/v1/projects/myproject/global/networks/my-network
+                      - projects/myproject/global/networks/my-network
+                      - global/networks/default
                     type: string
                   networkRef:
                     description: NetworkRef references a Network and retrieves its
@@ -180,21 +206,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -207,8 +233,9 @@ spec:
                     description: NetworkSelector selects a reference to a Network
                     properties:
                       matchControllerRef:
-                        description: MatchControllerRef ensures an object with the
-                          same controller reference as the selecting object is selected.
+                        description: |-
+                          MatchControllerRef ensures an object with the same controller reference
+                          as the selecting object is selected.
                         type: boolean
                       matchLabels:
                         additionalProperties:
@@ -221,21 +248,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -243,107 +270,121 @@ spec:
                         type: object
                     type: object
                   priority:
-                    description: 'Priority: Priority for this rule. This is an integer
-                      between `0` and `65535`, both inclusive. The default value is
-                      `1000`. Relative priorities determine which rule takes effect
-                      if multiple rules apply. Lower values indicate higher priority.
-                      For example, a rule with priority `0` has higher precedence
-                      than a rule with priority `1`. DENY rules take precedence over
-                      ALLOW rules if they have equal priority. Note that VPC networks
-                      have implied rules with a priority of `65535`. To avoid conflicts
-                      with the implied rules, use a priority number less than `65535`.'
+                    description: |-
+                      Priority: Priority for this rule. This is an integer between `0` and
+                      `65535`, both inclusive. The default value is `1000`. Relative
+                      priorities determine which rule takes effect if multiple rules apply.
+                      Lower values indicate higher priority. For example, a rule with
+                      priority `0` has higher precedence than a rule with priority `1`.
+                      DENY rules take precedence over ALLOW rules if they have equal
+                      priority. Note that VPC networks have implied rules with a priority
+                      of `65535`. To avoid conflicts with the implied rules, use a priority
+                      number less than `65535`.
                     format: int64
                     type: integer
                   sourceRanges:
-                    description: 'SourceRanges: If source ranges are specified, the
-                      firewall rule applies only to traffic that has a source IP address
-                      in these ranges. These ranges must be expressed in CIDR format.
-                      One or both of sourceRanges and sourceTags may be set. If both
-                      fields are set, the rule applies to traffic that has a source
-                      IP address within sourceRanges OR a source IP from a resource
-                      with a matching tag listed in the sourceTags field. The connection
-                      does not need to match both fields for the rule to apply. Only
-                      IPv4 is supported.'
+                    description: |-
+                      SourceRanges: If source ranges are specified, the firewall rule
+                      applies only to traffic that has a source IP address in these ranges.
+                      These ranges must be expressed in CIDR format. One or both of
+                      sourceRanges and sourceTags may be set. If both fields are set, the
+                      rule applies to traffic that has a source IP address within
+                      sourceRanges OR a source IP from a resource with a matching tag
+                      listed in the sourceTags field. The connection does not need to match
+                      both fields for the rule to apply. Only IPv4 is supported.
                     items:
                       type: string
                     type: array
                   sourceServiceAccounts:
-                    description: 'SourceServiceAccounts: If source service accounts
-                      are specified, the firewall rules apply only to traffic originating
-                      from an instance with a service account in this list. Source
-                      service accounts cannot be used to control traffic to an instance''s
-                      external IP address because service accounts are associated
-                      with an instance, not an IP address. sourceRanges can be set
-                      at the same time as sourceServiceAccounts. If both are set,
-                      the firewall applies to traffic that has a source IP address
-                      within the sourceRanges OR a source IP that belongs to an instance
-                      with service account listed in sourceServiceAccount. The connection
-                      does not need to match both fields for the firewall to apply.
-                      sourceServiceAccounts cannot be used at the same time as sourceTags
-                      or targetTags.'
+                    description: |-
+                      SourceServiceAccounts: If source service accounts are specified, the
+                      firewall rules apply only to traffic originating from an instance
+                      with a service account in this list. Source service accounts cannot
+                      be used to control traffic to an instance's external IP address
+                      because service accounts are associated with an instance, not an IP
+                      address. sourceRanges can be set at the same time as
+                      sourceServiceAccounts. If both are set, the firewall applies to
+                      traffic that has a source IP address within the sourceRanges OR a
+                      source IP that belongs to an instance with service account listed in
+                      sourceServiceAccount. The connection does not need to match both
+                      fields for the firewall to apply. sourceServiceAccounts cannot be
+                      used at the same time as sourceTags or targetTags.
                     items:
                       type: string
                     type: array
                   sourceTags:
-                    description: 'SourceTags: If source tags are specified, the firewall
-                      rule applies only to traffic with source IPs that match the
-                      primary network interfaces of VM instances that have the tag
-                      and are in the same VPC network. Source tags cannot be used
-                      to control traffic to an instance''s external IP address, it
-                      only applies to traffic between instances in the same virtual
-                      network. Because tags are associated with instances, not IP
-                      addresses. One or both of sourceRanges and sourceTags may be
-                      set. If both fields are set, the firewall applies to traffic
-                      that has a source IP address within sourceRanges OR a source
-                      IP from a resource with a matching tag listed in the sourceTags
-                      field. The connection does not need to match both fields for
-                      the firewall to apply.'
+                    description: |-
+                      SourceTags: If source tags are specified, the firewall rule applies
+                      only to traffic with source IPs that match the primary network
+                      interfaces of VM instances that have the tag and are in the same VPC
+                      network. Source tags cannot be used to control traffic to an
+                      instance's external IP address, it only applies to traffic between
+                      instances in the same virtual network. Because tags are associated
+                      with instances, not IP addresses. One or both of sourceRanges and
+                      sourceTags may be set. If both fields are set, the firewall applies
+                      to traffic that has a source IP address within sourceRanges OR a
+                      source IP from a resource with a matching tag listed in the
+                      sourceTags field. The connection does not need to match both fields
+                      for the firewall to apply.
                     items:
                       type: string
                     type: array
                   targetServiceAccounts:
-                    description: 'TargetServiceAccounts: A list of service accounts
-                      indicating sets of instances located in the network that may
-                      make network connections as specified in allowed[]. targetServiceAccounts
-                      cannot be used at the same time as targetTags or sourceTags.
-                      If neither targetServiceAccounts nor targetTags are specified,
-                      the firewall rule applies to all instances on the specified
-                      network.'
+                    description: |-
+                      TargetServiceAccounts: A list of service accounts indicating sets of
+                      instances located in the network that may make network connections as
+                      specified in allowed[]. targetServiceAccounts cannot be used at the
+                      same time as targetTags or sourceTags. If neither
+                      targetServiceAccounts nor targetTags are specified, the firewall rule
+                      applies to all instances on the specified network.
                     items:
                       type: string
                     type: array
                   targetTags:
-                    description: 'TargetTags: A list of tags that controls which instances
-                      the firewall rule applies to. If targetTags are specified, then
-                      the firewall rule applies only to instances in the VPC network
-                      that have one of those tags. If no targetTags are specified,
-                      the firewall rule applies to all instances on the specified
-                      network.'
+                    description: |-
+                      TargetTags: A list of tags that controls which instances the firewall
+                      rule applies to. If targetTags are specified, then the firewall rule
+                      applies only to instances in the VPC network that have one of those
+                      tags. If no targetTags are specified, the firewall rule applies to
+                      all instances on the specified network.
                     items:
                       type: string
                     type: array
                 type: object
-              managementPolicy:
-                default: FullControl
-                description: 'THIS IS AN ALPHA FIELD. Do not use it in production.
-                  It is not honored unless the relevant Crossplane feature flag is
-                  enabled, and may be changed or removed without notice. ManagementPolicy
-                  specifies the level of control Crossplane has over the managed external
-                  resource. This field is planned to replace the DeletionPolicy field
-                  in a future release. Currently, both could be set independently
-                  and non-default values would be honored if the feature flag is enabled.
-                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
-                enum:
-                - FullControl
-                - ObserveOnly
-                - OrphanOnDelete
-                type: string
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
               providerConfigRef:
                 default:
                   name: default
-                description: ProviderConfigReference specifies how the provider that
-                  will be used to create, observe, update, and delete this managed
-                  resource should be configured.
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
                 properties:
                   name:
                     description: Name of the referenced object.
@@ -353,57 +394,21 @@ spec:
                     properties:
                       resolution:
                         default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
                         enum:
                         - Required
                         - Optional
                         type: string
                       resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
-                        enum:
-                        - Always
-                        - IfNotPresent
-                        type: string
-                    type: object
-                required:
-                - name
-                type: object
-              providerRef:
-                description: 'ProviderReference specifies the provider that will be
-                  used to create, observe, update, and delete this managed resource.
-                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
-                properties:
-                  name:
-                    description: Name of the referenced object.
-                    type: string
-                  policy:
-                    description: Policies for referencing.
-                    properties:
-                      resolution:
-                        default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
-                        enum:
-                        - Required
-                        - Optional
-                        type: string
-                      resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
                         enum:
                         - Always
                         - IfNotPresent
@@ -413,17 +418,19 @@ spec:
                 - name
                 type: object
               publishConnectionDetailsTo:
-                description: PublishConnectionDetailsTo specifies the connection secret
-                  config which contains a name, metadata and a reference to secret
-                  store config to which any connection details for this managed resource
-                  should be written. Connection details frequently include the endpoint,
-                  username, and password required to connect to the managed resource.
+                description: |-
+                  PublishConnectionDetailsTo specifies the connection secret config which
+                  contains a name, metadata and a reference to secret store config to
+                  which any connection details for this managed resource should be written.
+                  Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
                 properties:
                   configRef:
                     default:
                       name: default
-                    description: SecretStoreConfigRef specifies which secret store
-                      config should be used for this ConnectionSecret.
+                    description: |-
+                      SecretStoreConfigRef specifies which secret store config should be used
+                      for this ConnectionSecret.
                     properties:
                       name:
                         description: Name of the referenced object.
@@ -433,21 +440,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -462,21 +469,22 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: Annotations are the annotations to be added to
-                          connection secret. - For Kubernetes secrets, this will be
-                          used as "metadata.annotations". - It is up to Secret Store
-                          implementation for others store types.
+                        description: |-
+                          Annotations are the annotations to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.annotations".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: Labels are the labels/tags to be added to connection
-                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
-                          - It is up to Secret Store implementation for others store
-                          types.
+                        description: |-
+                          Labels are the labels/tags to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       type:
-                        description: Type is the SecretType for the connection secret.
+                        description: |-
+                          Type is the SecretType for the connection secret.
                           - Only valid for Kubernetes Secret Stores.
                         type: string
                     type: object
@@ -487,14 +495,15 @@ spec:
                 - name
                 type: object
               writeConnectionSecretToRef:
-                description: WriteConnectionSecretToReference specifies the namespace
-                  and name of a Secret to which any connection details for this managed
-                  resource should be written. Connection details frequently include
-                  the endpoint, username, and password required to connect to the
-                  managed resource. This field is planned to be replaced in a future
-                  release in favor of PublishConnectionDetailsTo. Currently, both
-                  could be set independently and connection details would be published
-                  to both without affecting each other.
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                  This field is planned to be replaced in a future release in favor of
+                  PublishConnectionDetailsTo. Currently, both could be set independently
+                  and connection details would be published to both without affecting
+                  each other.
                 properties:
                   name:
                     description: Name of the secret.
@@ -513,16 +522,19 @@ spec:
             description: A FirewallStatus represents the observed state of a Firewall.
             properties:
               atProvider:
-                description: A FirewallObservation represents the observed state of
-                  a Google Compute Engine Firewall rule.
+                description: |-
+                  A FirewallObservation represents the observed state of a Google Compute Engine
+                  Firewall rule.
                 properties:
                   creationTimestamp:
-                    description: 'CreationTimestamp: Creation timestamp in RFC3339
-                      text format.'
+                    description: |-
+                      CreationTimestamp: Creation timestamp in RFC3339 text
+                      format.
                     type: string
                   id:
-                    description: 'Id: The unique identifier for the resource. This
-                      identifier is defined by the server.'
+                    description: |-
+                      Id: The unique identifier for the resource. This
+                      identifier is defined by the server.
                     format: int64
                     type: integer
                   selfLink:
@@ -535,14 +547,23 @@ spec:
                   description: A Condition that may apply to a resource.
                   properties:
                     lastTransitionTime:
-                      description: LastTransitionTime is the last time this condition
-                        transitioned from one status to another.
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
                       format: date-time
                       type: string
                     message:
-                      description: A Message containing details about this condition's
-                        last transition from one status to another, if any.
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
                       type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
                     reason:
                       description: A Reason for this condition's last transition from
                         one status to another.
@@ -552,8 +573,9 @@ spec:
                         False, or Unknown?
                       type: string
                     type:
-                      description: Type of this condition. At most one of each condition
-                        type may apply to a resource at any point in time.
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
                       type: string
                   required:
                   - lastTransitionTime
@@ -562,6 +584,16 @@ spec:
                   - type
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
             type: object
         required:
         - spec
