@@ -901,8 +901,20 @@ func newLoggingServiceUpdateFn(in *string) UpdateFn {
 // newMaintenancePolicyUpdateFn returns a function that updates the MaintenancePolicy of a cluster.
 func newMaintenancePolicyUpdateFn(in *v1beta1.MaintenancePolicySpec) UpdateFn {
 	return func(ctx context.Context, s *container.Service, name string) (*container.Operation, error) {
+		// First get the current cluster to get the resourceVersion
+		cluster, err := s.Projects.Locations.Clusters.Get(name).Context(ctx).Do()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get cluster")
+		}
+
 		out := &container.Cluster{}
 		GenerateMaintenancePolicy(in, out)
+
+		// Set the resourceVersion from the current cluster
+		if cluster.MaintenancePolicy != nil {
+			out.MaintenancePolicy.ResourceVersion = cluster.MaintenancePolicy.ResourceVersion
+		}
+
 		update := &container.SetMaintenancePolicyRequest{
 			MaintenancePolicy: out.MaintenancePolicy,
 		}
